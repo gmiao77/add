@@ -20,7 +20,7 @@ export const strategy2 = {
     getHtml() {
         return `
             <header class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">Amazon ASIN定投广告批量创建1.3</h2>
+                <h2 class="text-xl font-bold text-gray-800">ASIN定投广告批量创建</h2>
             </header>
 
             <form id="adForm" class="space-y-4">
@@ -419,3 +419,4 @@ export const strategy2 = {
 
 // 暴露到全局，供主页面调用
 window.strategy2 = strategy2;
+
