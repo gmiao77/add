@@ -20,7 +20,7 @@ export const strategy3 = {
     getHtml() {
         return `
             <header class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">亚马逊自动广告批量创建模板1.3</h2>
+                <h2 class="text-xl font-bold text-gray-800">自动广告批量创建</h2>
             </header>
 
             <form id="adForm" class="space-y-4">
@@ -289,3 +289,4 @@ export const strategy3 = {
 
 // 暴露到全局，供主页面调用
 window.strategy3 = strategy3;
+
