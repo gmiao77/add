@@ -1,4 +1,5 @@
-// 策略3模块 - Amazonexport const strategy3 = {
+// 策略3模块 - Amazon自动广告批量创建
+export const strategy3 = {
     // 存储数据
     data: [],
     
