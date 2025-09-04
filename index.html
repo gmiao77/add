@@ -50,27 +50,83 @@
             <header class="mb-8">
                 <h1 class="text-2xl font-bold text-gray-800 text-center">广告架构策略</h1>
             </header>
-
-            <main class="bg-white rounded-lg shadow-md p-6 mb-8">
-                <!-- 策略选择区域 -->
+    
+            <main class="bg-white rounded-lg shadow-md p-6">
+                <!-- 策略选择器 -->
                 <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">选择广告策略</label>
-                    <select id="strategySelector" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">选择策略</label>
+                    <select id="strategySelector" class="w-full px-3 py-2 border border-gray-300 rounded-md">
                         <option value="">请选择策略</option>
                         <option value="strategy1">策略1 - Amazon关键词广告批量创建</option>
-                        <option value="strategy2">策略2 - 待添加</option>
+                        <option value="strategy2">策略2 - 预留策略</option>
                     </select>
                 </div>
-
-                <!-- 子页面内容区域 -->
-                <div id="subpageContainer" class="min-h-[600px] border border-gray-200 rounded-lg p-4">
-                    <div class="flex items-center justify-center h-[600px] text-gray-500">
-                        <p>请从上方选择一个广告策略</p>
+    
+                <!-- 策略内容容器（初始为空） -->
+                <div id="strategyContent" class="min-h-[500px] border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-center justify-center h-[500px] text-gray-500">
+                        <p>请从上方选择策略</p>
                     </div>
                 </div>
             </main>
         </div>
-    </div>
+    
+        <script>
+            // 策略映射表：策略标识 -> 对应的模块文件
+            const strategyMap = {
+                strategy1: 'strategies/strategy1.js',
+                strategy2: 'strategies/strategy2.js'
+            };
+    
+            // 当前加载的策略模块
+            let currentModule = null;
+    
+            // 策略选择事件
+            document.getElementById('strategySelector').addEventListener('change', async (e) => {
+                const strategyId = e.target.value;
+                const container = document.getElementById('strategyContent');
+    
+                // 清空容器
+                container.innerHTML = '<div class="flex items-center justify-center h-[500px] text-gray-500"><p>加载中...</p></div>';
+    
+                if (!strategyId) {
+                    // 未选择策略
+                    container.innerHTML = '<div class="flex items-center justify-center h-[500px] text-gray-500"><p>请从上方选择策略</p></div>';
+                    currentModule = null;
+                    return;
+                }
+    
+                try {
+                    // 移除已加载的策略脚本
+                    const oldScript = document.getElementById('strategyScript');
+                    if (oldScript) oldScript.remove();
+    
+                    // 加载新策略模块
+                    const script = document.createElement('script');
+                    script.id = 'strategyScript';
+                    script.src = strategyMap[strategyId];
+                    script.type = 'module'; // 使用ES6模块
+    
+                    // 等待脚本加载并执行
+                    await new Promise((resolve, reject) => {
+                        script.onload = resolve;
+                        script.onerror = () => reject(new Error('策略加载失败'));
+                        document.head.appendChild(script);
+                    });
+    
+                    // 调用模块的初始化方法
+                    if (window[strategyId] && typeof window[strategyId].init === 'function') {
+                        currentModule = window[strategyId];
+                        currentModule.init(container); // 将容器传递给模块
+                    } else {
+                        throw new Error('策略模块格式错误');
+                    }
+                } catch (error) {
+                    container.innerHTML = `<div class="flex items-center justify-center h-[500px] text-red-500"><p>加载失败: ${error.message}</p></div>`;
+                    currentModule = null;
+                }
+            });
+        </script>
 
     <script>
         // 初始化Supabase客户端 - 请替换为你的项目URL和anon key
@@ -205,44 +261,7 @@
             }
         });
 
-        // 加载策略1
-        function loadStrategy1(container) {
-            const strategy1Content = document.createElement('div');
-            strategy1Content.innerHTML = `
-                <header class="mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 text-center">Amazon关键词广告批量创建1.3</h2>
-                </header>
 
-                <form id="adForm" class="space-y-4">
-                    <!-- 这里放置策略1的完整表单内容 -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <label class="block text-sm font-medium text-gray-700">广告活动名称</label>
-                            <input type="text" name="广告活动名称" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-
-                        <div class="space-y-2">
-                            <label class="block text-sm font-medium text-gray-700">广告组名称</label>
-                            <input type="text" name="广告组名称" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                        </div>
-
-                        <!-- 省略其他表单字段，保持与之前相同 -->
-                    </div>
-
-                    <div class="pt-4">
-                        <button type="button" id="generateBtn" 
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md">
-                            生成广告批量上传模板
-                        </button>
-                    </div>
-                </form>
-            `;
-            
-            container.appendChild(strategy1Content);
-            // 初始化策略1的功能（此处省略具体实现）
-        }
 
         // 绑定事件
         registerBtn.addEventListener('click', register);
