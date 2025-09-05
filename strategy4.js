@@ -61,7 +61,7 @@ export const strategy4 = {
                 <!-- 按钮组 -->
                 <div class="flex flex-col sm:flex-row gap-4 pt-4">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（从Excel导入，需包含：关键词,SKU,BID,广告活动名称,广告组名称,预算,百分比）</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（从Excel导入，需包含：关键词,SKU,BID,广告活动名称,广告组名称,预算，百分比可选）</label>
                         <label class="flex items-center justify-center w-full">
                             <div class="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100" id="dropArea">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -169,8 +169,8 @@ export const strategy4 = {
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 
-                // 验证必要字段，新增了预算和百分比
-                const requiredFields = ['关键词', 'SKU', 'BID', '广告活动名称', '广告组名称', '预算', '百分比'];
+                // 验证必要字段，百分比不再是必填项
+                const requiredFields = ['关键词', 'SKU', 'BID', '广告活动名称', '广告组名称', '预算'];
                 if (jsonData.length === 0) {
                     throw new Error('Excel文件中没有数据');
                 }
@@ -182,11 +182,15 @@ export const strategy4 = {
                     }
                 });
                 
-                // 存储完整数据
+                // 存储完整数据，百分比可选，默认为0
                 this.keywordsData = jsonData.filter(row => 
                     row.关键词 && row.SKU && row.BID && row.广告活动名称 && 
-                    row.广告组名称 && row.预算 && row.百分比
-                );
+                    row.广告组名称 && row.预算
+                ).map(row => ({
+                    ...row,
+                    // 如果没有百分比，设置默认值为0
+                    百分比: row.百分比 || "0"
+                }));
                 
                 if (this.keywordsData.length === 0) {
                     this.showStatus('未找到有效数据行，请检查数据完整性', 'error');
@@ -250,17 +254,17 @@ export const strategy4 = {
             
             // 生成数据行（基于导入的表格数据）
             this.keywordsData.forEach(item => {
-                // 从表格数据获取所有信息，包括预算和百分比
+                // 从表格数据获取所有信息，百分比可选，使用默认值0
                 const campaignName = item["广告活动名称"].trim();
                 const adGroupName = item["广告组名称"].trim();
                 const sku = item["SKU"].trim();
                 const bid = item["BID"].toString().trim();
                 const keyword = item["关键词"].trim();
                 const budget = item["预算"].toString().trim();
-                const percentage = item["百分比"].toString().trim();
+                const percentage = item["百分比"] ? item["百分比"].toString().trim() : "0";
                 
                 // 广告活动ID（唯一标识）
-                const campaignId = `${campaignName}_${percentage}`;
+                const campaignId = `${campaignName}`;
                 
                 // 广告活动行（仅创建一次）
                 if (!createdCampaigns.has(campaignId)) {
@@ -283,7 +287,7 @@ export const strategy4 = {
                 }
                 
                 // 广告组ID（唯一标识）
-                const adGroupId = `${campaignId}_${adGroupName}`;
+                const adGroupId = `${adGroupName}`;
                 
                 // 广告组行（仅创建一次）
                 if (!createdAdGroups.has(adGroupId)) {
