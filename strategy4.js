@@ -1,4 +1,4 @@
-// 策略4模块 - 常规固定广告创建
+// 策略4模块 - 常规批量
 export const strategy4 = {
     // 存储关键词数据（包含完整信息）
     keywordsData: [],
@@ -20,18 +20,12 @@ export const strategy4 = {
     getHtml() {
         return `
             <header class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">常规关键词-ASIN广告批量创建</h2>
+                <h2 class="text-xl font-bold text-gray-800">常规批量</h2>
             </header>
 
             <form id="adForm" class="space-y-4">
                 <!-- 输入字段组 -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700">预算</label>
-                        <input type="text" name="预算" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">匹配类型</label>
                         <select name="匹配类型" required
@@ -62,18 +56,12 @@ export const strategy4 = {
                             <option value="placementProductPage">placementProductPage</option>
                         </select>
                     </div>
-
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700">百分比</label>
-                        <input type="text" name="百分比" placeholder="多个百分比用逗号分隔"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
                 </div>
 
                 <!-- 按钮组 -->
                 <div class="flex flex-col sm:flex-row gap-4 pt-4">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（从Excel导入，需包含：关键词,SKU,BID,广告活动名称,广告组名称）</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（从Excel导入，需包含：关键词,SKU,BID,广告活动名称,广告组名称,预算,百分比）</label>
                         <label class="flex items-center justify-center w-full">
                             <div class="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100" id="dropArea">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -181,8 +169,8 @@ export const strategy4 = {
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 
-                // 验证必要字段
-                const requiredFields = ['关键词', 'SKU', 'BID', '广告活动名称', '广告组名称'];
+                // 验证必要字段，新增了预算和百分比
+                const requiredFields = ['关键词', 'SKU', 'BID', '广告活动名称', '广告组名称', '预算', '百分比'];
                 if (jsonData.length === 0) {
                     throw new Error('Excel文件中没有数据');
                 }
@@ -196,7 +184,8 @@ export const strategy4 = {
                 
                 // 存储完整数据
                 this.keywordsData = jsonData.filter(row => 
-                    row.关键词 && row.SKU && row.BID && row.广告活动名称 && row.广告组名称
+                    row.关键词 && row.SKU && row.BID && row.广告活动名称 && 
+                    row.广告组名称 && row.预算 && row.百分比
                 );
                 
                 if (this.keywordsData.length === 0) {
@@ -235,17 +224,13 @@ export const strategy4 = {
             formData.forEach((value, key) => inputs[key] = value);
             
             // 验证必填项
-            const required = ["预算"];
+            const required = ["匹配类型", "竞价策略"];
             required.forEach(field => {
                 if (!inputs[field]) throw new Error(`${field} 不能为空`);
             });
             
             // 验证数据
             if (this.keywordsData.length === 0) throw new Error("请先导入包含完整数据的Excel文件");
-            
-            // 处理参数
-            const percentages = inputs["百分比"] ? 
-                inputs["百分比"].split(",").map(p => p.trim()).filter(p => p) : ["0"];
             
             const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
             
@@ -265,63 +250,63 @@ export const strategy4 = {
             
             // 生成数据行（基于导入的表格数据）
             this.keywordsData.forEach(item => {
-                // 从表格数据获取基础信息
+                // 从表格数据获取所有信息，包括预算和百分比
                 const campaignName = item["广告活动名称"].trim();
                 const adGroupName = item["广告组名称"].trim();
                 const sku = item["SKU"].trim();
                 const bid = item["BID"].toString().trim();
                 const keyword = item["关键词"].trim();
+                const budget = item["预算"].toString().trim();
+                const percentage = item["百分比"].toString().trim();
                 
-                percentages.forEach(percent => {
-                    // 广告活动ID（唯一标识）
-                    const campaignId = `${campaignName}_${percent}`;
-                    
-                    // 广告活动行（仅创建一次）
-                    if (!createdCampaigns.has(campaignId)) {
-                        rows.push([
-                            "Sponsored Products", "Campaign", "Create", campaignId, "", "", "", "", "",
-                            campaignName, "", today, "", "MANUAL", "enabled", inputs["预算"], 
-                            "", "", "", "", "", "", "", inputs["竞价策略"], "", "", ""
-                        ]);
-                        
-                        // 竞价调整行
-                        if (inputs["竞价位置"]) {
-                            rows.push([
-                                "Sponsored Products", "Bidding Adjustment", "Create", campaignId, "", "", "", "", "",
-                                "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                                inputs["竞价策略"], inputs["竞价位置"], percent, ""
-                            ]);
-                        }
-                        
-                        createdCampaigns.add(campaignId);
-                    }
-                    
-                    // 广告组ID（唯一标识）
-                    const adGroupId = `${campaignId}_${adGroupName}`;
-                    
-                    // 广告组行（仅创建一次）
-                    if (!createdAdGroups.has(adGroupId)) {
-                        rows.push([
-                            "Sponsored Products", "Ad Group", "Create", campaignId, adGroupId, "", "", "", "",
-                            "", adGroupName, "", "", "", "enabled", "", "", bid, "", "", "", "", "", "", "", ""
-                        ]);
-                        
-                        // 产品广告行
-                        rows.push([
-                            "Sponsored Products", "Product Ad", "Create", campaignId, adGroupId, "", "", "", "",
-                            "", "", "", "", "", "enabled", "", sku, "", "", "", "", "", "", "", "", ""
-                        ]);
-                        
-                        createdAdGroups.add(adGroupId);
-                    }
-                    
-                    // 关键词行
+                // 广告活动ID（唯一标识）
+                const campaignId = `${campaignName}_${percentage}`;
+                
+                // 广告活动行（仅创建一次）
+                if (!createdCampaigns.has(campaignId)) {
                     rows.push([
-                        "Sponsored Products", "Keyword", "Create", campaignId, adGroupId, "", "", "", "",
-                        "", "", "", "", "", "enabled", "", "", "", bid, keyword, "", "", 
-                        inputs["匹配类型"], "", "", ""
+                        "Sponsored Products", "Campaign", "Create", campaignId, "", "", "", "", "",
+                        campaignName, "", today, "", "MANUAL", "enabled", budget, 
+                        "", "", "", "", "", "", "", inputs["竞价策略"], "", "", ""
                     ]);
-                });
+                    
+                    // 竞价调整行
+                    if (inputs["竞价位置"]) {
+                        rows.push([
+                            "Sponsored Products", "Bidding Adjustment", "Create", campaignId, "", "", "", "", "",
+                            "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+                            inputs["竞价策略"], inputs["竞价位置"], percentage, ""
+                        ]);
+                    }
+                    
+                    createdCampaigns.add(campaignId);
+                }
+                
+                // 广告组ID（唯一标识）
+                const adGroupId = `${campaignId}_${adGroupName}`;
+                
+                // 广告组行（仅创建一次）
+                if (!createdAdGroups.has(adGroupId)) {
+                    rows.push([
+                        "Sponsored Products", "Ad Group", "Create", campaignId, adGroupId, "", "", "", "",
+                        "", adGroupName, "", "", "", "enabled", "", "", bid, "", "", "", "", "", "", "", ""
+                    ]);
+                    
+                    // 产品广告行
+                    rows.push([
+                        "Sponsored Products", "Product Ad", "Create", campaignId, adGroupId, "", "", "", "",
+                        "", "", "", "", "", "enabled", "", sku, "", "", "", "", "", "", "", "", ""
+                    ]);
+                    
+                    createdAdGroups.add(adGroupId);
+                }
+                
+                // 关键词行
+                rows.push([
+                    "Sponsored Products", "Keyword", "Create", campaignId, adGroupId, "", "", "", "",
+                    "", "", "", "", "", "enabled", "", "", "", bid, keyword, "", "", 
+                    inputs["匹配类型"], "", "", ""
+                ]);
             });
             
             // 生成并下载CSV
