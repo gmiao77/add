@@ -270,15 +270,14 @@ export const strategy4 = {
             ];
             const rows = [header];
             
-            // 按Campaign ID组织所有数据，确保相同ID的内容连续
-            const campaignData = new Map(); // key: campaignId, value: 该campaign的所有数据
+            // 按Campaign ID和Ad Group ID组织数据，确保完整的层级结构
+            // 数据结构: { campaignId: { adGroups: { adGroupId: { ... } }, ... } }
+            const campaignStructure = {};
+            const processedCampaigns = new Set();
+            const processedAdGroups = new Set();
+            const processedProductAds = new Set();
             
-            // 跟踪已创建的元素
-            const createdCampaigns = new Set();
-            const createdAdGroups = new Set();
-            const createdProductAds = new Set();
-            
-            // 第一遍：收集所有数据并按Campaign ID分组
+            // 第一步：构建完整的广告活动结构
             this.keywordsData.forEach(item => {
                 const campaignName = item["广告活动名称"].trim();
                 const adGroupName = item["广告组名称"].trim();
@@ -288,116 +287,90 @@ export const strategy4 = {
                 const budget = item["预算"].toString().trim();
                 const percentage = item["百分比"] ? item["百分比"].toString().trim() : "0";
                 
+                // 生成唯一ID
                 const campaignId = `${campaignName}_${percentage}`;
                 const adGroupId = `${campaignId}_${adGroupName}`;
                 const productAdKey = `${adGroupId}_${sku}`;
                 
-                // 如果是新的campaign，初始化其数据结构
-                if (!campaignData.has(campaignId)) {
-                    campaignData.set(campaignId, {
-                        campaignRow: null,
-                        biddingAdjustmentRow: null,
-                        adGroups: new Map(), // key: adGroupId
+                // 初始化广告活动
+                if (!campaignStructure[campaignId]) {
+                    campaignStructure[campaignId] = {
+                        id: campaignId,
+                        name: campaignName,
+                        budget: budget,
+                        percentage: percentage,
+                        adGroups: {},
+                        biddingAdjustment: inputs["竞价位置"] ? inputs["竞价位置"] : null
+                    };
+                }
+                
+                const campaign = campaignStructure[campaignId];
+                
+                // 初始化广告组
+                if (!campaign.adGroups[adGroupId]) {
+                    campaign.adGroups[adGroupId] = {
+                        id: adGroupId,
+                        name: adGroupName,
+                        bid: bid,
+                        productAds: new Set(), // 用Set确保SKU唯一
                         keywords: []
-                    });
+                    };
                 }
                 
-                const currentCampaign = campaignData.get(campaignId);
+                const adGroup = campaign.adGroups[adGroupId];
                 
-                // 收集广告活动行（只创建一次）
-                if (!createdCampaigns.has(campaignId)) {
-                    currentCampaign.campaignRow = [
-                        "Sponsored Products", "Campaign", "Create", campaignId, "", "", "", "", "",
-                        campaignName, "", today, "", "MANUAL", "enabled", budget, 
-                        "", "", "", "", "", "", "", inputs["竞价策略"], "", "", ""
-                    ];
-                    
-                    // 竞价调整行
-                    if (inputs["竞价位置"]) {
-                        currentCampaign.biddingAdjustmentRow = [
-                            "Sponsored Products", "Bidding Adjustment", "Create", campaignId, "", "", "", "", "",
-                            "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                            inputs["竞价策略"], inputs["竞价位置"], percentage, ""
-                        ];
-                    }
-                    
-                    createdCampaigns.add(campaignId);
-                }
+                // 添加产品广告（去重）
+                adGroup.productAds.add(sku);
                 
-                // 初始化广告组数据结构
-                if (!currentCampaign.adGroups.has(adGroupId)) {
-                    currentCampaign.adGroups.set(adGroupId, {
-                        adGroupRow: null,
-                        productAds: [],
-                        keywords: []
-                    });
-                }
-                
-                const currentAdGroup = currentCampaign.adGroups.get(adGroupId);
-                
-                // 收集广告组行（只创建一次）
-                if (!createdAdGroups.has(adGroupId)) {
-                    currentAdGroup.adGroupRow = [
-                        "Sponsored Products", "Ad Group", "Create", campaignId, adGroupId, "", "", "", "",
-                        "", adGroupName, "", "", "", "enabled", "", "", bid, "", "", "", "", "", "", "", ""
-                    ];
-                    
-                    createdAdGroups.add(adGroupId);
-                }
-                
-                // 收集产品广告行（每个SKU只创建一次）
-                if (!createdProductAds.has(productAdKey)) {
-                    currentAdGroup.productAds.push([
-                        "Sponsored Products", "Product Ad", "Create", campaignId, adGroupId, "", "", "", "",
-                        "", "", "", "", "", "enabled", "", sku, "", "", "", "", "", "", "", "", ""
-                    ]);
-                    
-                    createdProductAds.add(productAdKey);
-                }
-                
-                // 收集关键词行
-                currentAdGroup.keywords.push([
-                    "Sponsored Products", "Keyword", "Create", campaignId, adGroupId, "", "", "", "",
-                    "", "", "", "", "", "enabled", "", "", "", bid, keyword, "", "", 
-                    inputs["匹配类型"], "", "", ""
-                ]);
+                // 添加关键词
+                adGroup.keywords.push({
+                    text: keyword,
+                    bid: bid,
+                    matchType: inputs["匹配类型"]
+                });
             });
             
-            // 第二遍：按Campaign ID顺序输出所有内容，确保相同ID的内容连续
-            // 将campaignId转换为数组，保证顺序稳定
-            const campaignIds = Array.from(campaignData.keys());
-            
-            campaignIds.forEach(campaignId => {
-                const campaign = campaignData.get(campaignId);
+            // 第二步：按广告活动顺序生成CSV行，确保每个活动的内容连续完整
+            Object.values(campaignStructure).forEach(campaign => {
+                // 1. 添加广告活动行
+                rows.push([
+                    "Sponsored Products", "Campaign", "Create", campaign.id, "", "", "", "", "",
+                    campaign.name, "", today, "", "MANUAL", "enabled", campaign.budget, 
+                    "", "", "", "", "", "", "", inputs["竞价策略"], "", "", ""
+                ]);
                 
-                // 添加广告活动行
-                if (campaign.campaignRow) {
-                    rows.push(campaign.campaignRow);
+                // 2. 添加竞价调整行（如果有）
+                if (campaign.biddingAdjustment) {
+                    rows.push([
+                        "Sponsored Products", "Bidding Adjustment", "Create", campaign.id, "", "", "", "", "",
+                        "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+                        inputs["竞价策略"], campaign.biddingAdjustment, campaign.percentage, ""
+                    ]);
                 }
                 
-                // 添加竞价调整行
-                if (campaign.biddingAdjustmentRow) {
-                    rows.push(campaign.biddingAdjustmentRow);
-                }
-                
-                // 按广告组顺序添加内容
-                const adGroupIds = Array.from(campaign.adGroups.keys());
-                adGroupIds.forEach(adGroupId => {
-                    const adGroup = campaign.adGroups.get(adGroupId);
+                // 3. 处理该广告活动下的所有广告组
+                Object.values(campaign.adGroups).forEach(adGroup => {
+                    // 3.1 添加广告组行
+                    rows.push([
+                        "Sponsored Products", "Ad Group", "Create", campaign.id, adGroup.id, "", "", "", "",
+                        "", adGroup.name, "", "", "", "enabled", "", "", adGroup.bid, "", "", "", "", "", "", "", ""
+                    ]);
                     
-                    // 添加广告组行
-                    if (adGroup.adGroupRow) {
-                        rows.push(adGroup.adGroupRow);
-                    }
-                    
-                    // 添加该广告组下的所有产品广告行（连续排列）
-                    adGroup.productAds.forEach(productAdRow => {
-                        rows.push(productAdRow);
+                    // 3.2 添加该广告组下的所有产品广告行（连续排列）
+                    Array.from(adGroup.productAds).forEach(sku => {
+                        rows.push([
+                            "Sponsored Products", "Product Ad", "Create", campaign.id, adGroup.id, "", "", "", "",
+                            "", "", "", "", "", "enabled", "", sku, "", "", "", "", "", "", "", "", ""
+                        ]);
                     });
                     
-                    // 添加该广告组下的所有关键词行
-                    adGroup.keywords.forEach(keywordRow => {
-                        rows.push(keywordRow);
+                    // 3.3 添加该广告组下的所有关键词行（紧跟在产品广告后）
+                    adGroup.keywords.forEach(keyword => {
+                        rows.push([
+                            "Sponsored Products", "Keyword", "Create", campaign.id, adGroup.id, "", "", "", "",
+                            "", "", "", "", "", "enabled", "", "", "", keyword.bid, keyword.text, "", "", 
+                            keyword.matchType, "", "", ""
+                        ]);
                     });
                 });
             });
