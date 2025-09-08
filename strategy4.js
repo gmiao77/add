@@ -1,11 +1,13 @@
-// 策略4模块 - 常规固定广告创建
+// 策略1模块 - 常规固定广告创建
 export const strategy4 = {
     // 存储关键词数据（包含完整信息）
     keywordsData: [],
+    // 标记是否正在处理文件上传，防止重复上传
+    isProcessingUpload: false,
     
     // 初始化方法：创建UI并绑定事件
     init(container) {
-        // 渲染策略4的UI
+        // 渲染策略1的UI
         container.innerHTML = this.getHtml();
         
         // 绑定DOM元素和事件
@@ -13,10 +15,10 @@ export const strategy4 = {
         this.bindEvents();
         
         // 显示初始化状态
-        this.showStatus('策略4已加载，可开始配置', 'success');
+        this.showStatus('策略1已加载，可开始配置', 'success');
     },
     
-    // 生成策略4的HTML结构
+    // 生成策略1的HTML结构
     getHtml() {
         return `
             <header class="mb-6">
@@ -104,21 +106,51 @@ export const strategy4 = {
     
     // 绑定事件处理函数
     bindEvents() {
+        // 重置文件输入值的辅助函数，解决重复上传问题
+        const resetFileInput = () => {
+            this.keywordFileInput.value = '';
+            this.isProcessingUpload = false;
+        };
+        
         // 文件上传相关事件
-        this.dropArea.addEventListener('click', () => this.keywordFileInput.click());
-        this.keywordFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
+        this.dropArea.addEventListener('click', () => {
+            // 防止重复点击导致多次弹窗
+            if (!this.isProcessingUpload) {
+                this.isProcessingUpload = true;
+                this.keywordFileInput.click();
+                // 超时自动重置，防止意外状态锁定
+                setTimeout(resetFileInput, 5000);
+            }
+        });
+        
+        this.keywordFileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                this.handleKeywordFile(e.target.files[0]);
+            }
+            resetFileInput();
+        });
         
         // 拖放事件
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             this.dropArea.addEventListener(eventName, this.preventDefaults.bind(this), false);
         });
+        
         ['dragenter', 'dragover'].forEach(eventName => {
             this.dropArea.addEventListener(eventName, this.highlight.bind(this), false);
         });
+        
         ['dragleave', 'drop'].forEach(eventName => {
             this.dropArea.addEventListener(eventName, this.unhighlight.bind(this), false);
         });
-        this.dropArea.addEventListener('drop', (e) => this.handleDrop(e), false);
+        
+        this.dropArea.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            if (file) {
+                this.handleKeywordFile(file);
+            }
+            resetFileInput();
+        }, false);
         
         // 生成按钮事件
         this.generateBtn.addEventListener('click', () => this.generateTemplate());
@@ -153,8 +185,12 @@ export const strategy4 = {
     
     // 处理关键词文件（现在包含完整数据）
     handleKeywordFile(file) {
+        // 清除现有数据，支持上传新文件而无需刷新页面
+        this.keywordsData = [];
+        
         if (!file.name.endsWith('.xlsx')) {
             this.showStatus('请上传.xlsx格式的Excel文件', 'error');
+            this.keywordStatus.textContent = '未选择文件';
             return;
         }
         
@@ -169,7 +205,7 @@ export const strategy4 = {
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 
-                // 验证必要字段，百分比不再是必填项
+                // 验证必要字段
                 const requiredFields = ['关键词', 'SKU', 'BID', '广告活动名称', '广告组名称', '预算'];
                 if (jsonData.length === 0) {
                     throw new Error('Excel文件中没有数据');
@@ -188,7 +224,6 @@ export const strategy4 = {
                     row.广告组名称 && row.预算
                 ).map(row => ({
                     ...row,
-                    // 如果没有百分比，设置默认值为0
                     百分比: row.百分比 || "0"
                 }));
                 
@@ -248,15 +283,19 @@ export const strategy4 = {
             ];
             const rows = [header];
             
-            // 跟踪已创建的层级元素，确保每个层级只创建一次
-            // 但每个SKU在其所属层级下都要创建Product Ad
+            // 跟踪已创建的层级元素
             const createdCampaigns = new Set();
             const createdAdGroups = new Set();
-            const createdProductAds = new Set(); // 用于跟踪已创建的产品广告（按SKU+广告组）
+            const createdProductAds = new Set();
             
-            // 生成数据行（基于导入的表格数据）
+            // 收集所有需要创建的元素，以便后续排序
+            const campaignRows = [];
+            const adGroupRows = [];
+            const productAdRows = new Map(); // key: adGroupId, value: rows array
+            const keywordRows = [];
+            
+            // 第一遍：收集所有需要创建的元素
             this.keywordsData.forEach(item => {
-                // 从表格数据获取所有信息
                 const campaignName = item["广告活动名称"].trim();
                 const adGroupName = item["广告组名称"].trim();
                 const sku = item["SKU"].trim();
@@ -265,12 +304,13 @@ export const strategy4 = {
                 const budget = item["预算"].toString().trim();
                 const percentage = item["百分比"] ? item["百分比"].toString().trim() : "0";
                 
-                // 广告活动ID（唯一标识）
-                const campaignId = `${campaignName}`;
+                const campaignId = `${campaignName}_${percentage}`;
+                const adGroupId = `${campaignId}_${adGroupName}`;
+                const productAdKey = `${adGroupId}_${sku}`;
                 
-                // 1. 创建广告活动（每个活动只创建一次）
+                // 收集广告活动行
                 if (!createdCampaigns.has(campaignId)) {
-                    rows.push([
+                    campaignRows.push([
                         "Sponsored Products", "Campaign", "Create", campaignId, "", "", "", "", "",
                         campaignName, "", today, "", "MANUAL", "enabled", budget, 
                         "", "", "", "", "", "", "", inputs["竞价策略"], "", "", ""
@@ -278,7 +318,7 @@ export const strategy4 = {
                     
                     // 竞价调整行
                     if (inputs["竞价位置"]) {
-                        rows.push([
+                        campaignRows.push([
                             "Sponsored Products", "Bidding Adjustment", "Create", campaignId, "", "", "", "", "",
                             "", "", "", "", "", "", "", "", "", "", "", "", "", "",
                             inputs["竞价策略"], inputs["竞价位置"], percentage, ""
@@ -288,37 +328,63 @@ export const strategy4 = {
                     createdCampaigns.add(campaignId);
                 }
                 
-                // 广告组ID（唯一标识）
-                const adGroupId = `${adGroupName}`;
-                
-                // 2. 创建广告组（每个广告组只创建一次）
+                // 收集广告组行
                 if (!createdAdGroups.has(adGroupId)) {
-                    rows.push([
-                        "Sponsored Products", "Ad Group", "Create", campaignId, adGroupId, "", "", "", "",
-                        "", adGroupName, "", "", "", "enabled", "", "", bid, "", "", "", "", "", "", "", ""
-                    ]);
+                    adGroupRows.push({
+                        adGroupId,
+                        campaignId,
+                        row: [
+                            "Sponsored Products", "Ad Group", "Create", campaignId, adGroupId, "", "", "", "",
+                            "", adGroupName, "", "", "", "enabled", "", "", bid, "", "", "", "", "", "", "", ""
+                        ]
+                    });
                     
                     createdAdGroups.add(adGroupId);
+                    
+                    // 初始化该广告组的产品广告数组
+                    productAdRows.set(adGroupId, []);
                 }
                 
-                // 3. 创建产品广告（每个SKU在其广告组下都要创建，即使属于同一广告活动）
-                const productAdKey = `${adGroupId}_${sku}`; // 广告组+SKU的唯一标识
+                // 收集产品广告行
                 if (!createdProductAds.has(productAdKey)) {
-                    rows.push([
+                    const productAdRow = [
                         "Sponsored Products", "Product Ad", "Create", campaignId, adGroupId, "", "", "", "",
                         "", "", "", "", "", "enabled", "", sku, "", "", "", "", "", "", "", "", ""
-                    ]);
+                    ];
                     
+                    // 将产品广告行添加到对应广告组的数组中
+                    productAdRows.get(adGroupId).push(productAdRow);
                     createdProductAds.add(productAdKey);
                 }
                 
-                // 4. 创建关键词行（每个关键词都创建）
-                rows.push([
-                    "Sponsored Products", "Keyword", "Create", campaignId, adGroupId, "", "", "", "",
-                    "", "", "", "", "", "enabled", "", "", "", bid, keyword, "", "", 
-                    inputs["匹配类型"], "", "", ""
-                ]);
+                // 收集关键词行
+                keywordRows.push({
+                    adGroupId,
+                    row: [
+                        "Sponsored Products", "Keyword", "Create", campaignId, adGroupId, "", "", "", "",
+                        "", "", "", "", "", "enabled", "", "", "", bid, keyword, "", "", 
+                        inputs["匹配类型"], "", "", ""
+                    ]
+                });
             });
+            
+            // 第二遍：按顺序组装所有行，确保同一广告组下的Product Ad连续排列
+            // 1. 添加所有广告活动行
+            campaignRows.forEach(row => rows.push(row));
+            
+            // 2. 添加广告组行及其对应的产品广告行
+            adGroupRows.forEach(adGroup => {
+                rows.push(adGroup.row);
+                
+                // 添加该广告组下的所有产品广告行（连续排列）
+                const productAds = productAdRows.get(adGroup.adGroupId);
+                if (productAds && productAds.length > 0) {
+                    productAds.forEach(adRow => rows.push(adRow));
+                }
+            });
+            
+            // 3. 添加所有关键词行
+            keywordRows.forEach(keyword => rows.push(keyword.row));
             
             // 生成并下载CSV
             const csvContent = rows.map(row => 
