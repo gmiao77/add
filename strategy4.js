@@ -266,7 +266,7 @@ export const strategy4 = {
                 const percentage = item["百分比"] ? item["百分比"].toString().trim() : "0";
                 
                 // 广告活动ID（唯一标识）
-                const campaignId = `${campaignName}_${percentage}`;
+                const campaignId = `${campaignName}`;
                 
                 // 1. 创建广告活动（每个活动只创建一次）
                 if (!createdCampaigns.has(campaignId)) {
@@ -289,7 +289,7 @@ export const strategy4 = {
                 }
                 
                 // 广告组ID（唯一标识）
-                const adGroupId = `${campaignId}_${adGroupName}`;
+                const adGroupId = `${adGroupName}`;
                 
                 // 2. 创建广告组（每个广告组只创建一次）
                 if (!createdAdGroups.has(adGroupId)) {
