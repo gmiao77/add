@@ -1,4 +1,4 @@
-// 策略4模块 - 常规批量
+// 策略4模块 - 常规固定广告创建
 export const strategy4 = {
     // 存储关键词数据（包含完整信息）
     keywordsData: [],
@@ -20,7 +20,7 @@ export const strategy4 = {
     getHtml() {
         return `
             <header class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">常规批量</h2>
+                <h2 class="text-xl font-bold text-gray-800">常规关键词-ASIN广告批量创建</h2>
             </header>
 
             <form id="adForm" class="space-y-4">
@@ -248,13 +248,15 @@ export const strategy4 = {
             ];
             const rows = [header];
             
-            // 跟踪已创建的活动和广告组，避免重复
+            // 跟踪已创建的层级元素，确保每个层级只创建一次
+            // 但每个SKU在其所属层级下都要创建Product Ad
             const createdCampaigns = new Set();
             const createdAdGroups = new Set();
+            const createdProductAds = new Set(); // 用于跟踪已创建的产品广告（按SKU+广告组）
             
             // 生成数据行（基于导入的表格数据）
             this.keywordsData.forEach(item => {
-                // 从表格数据获取所有信息，百分比可选，使用默认值0
+                // 从表格数据获取所有信息
                 const campaignName = item["广告活动名称"].trim();
                 const adGroupName = item["广告组名称"].trim();
                 const sku = item["SKU"].trim();
@@ -264,9 +266,9 @@ export const strategy4 = {
                 const percentage = item["百分比"] ? item["百分比"].toString().trim() : "0";
                 
                 // 广告活动ID（唯一标识）
-                const campaignId = `${campaignName}`;
+                const campaignId = `${campaignName}_${percentage}`;
                 
-                // 广告活动行（仅创建一次）
+                // 1. 创建广告活动（每个活动只创建一次）
                 if (!createdCampaigns.has(campaignId)) {
                     rows.push([
                         "Sponsored Products", "Campaign", "Create", campaignId, "", "", "", "", "",
@@ -287,25 +289,30 @@ export const strategy4 = {
                 }
                 
                 // 广告组ID（唯一标识）
-                const adGroupId = `${adGroupName}`;
+                const adGroupId = `${campaignId}_${adGroupName}`;
                 
-                // 广告组行（仅创建一次）
+                // 2. 创建广告组（每个广告组只创建一次）
                 if (!createdAdGroups.has(adGroupId)) {
                     rows.push([
                         "Sponsored Products", "Ad Group", "Create", campaignId, adGroupId, "", "", "", "",
                         "", adGroupName, "", "", "", "enabled", "", "", bid, "", "", "", "", "", "", "", ""
                     ]);
                     
-                    // 产品广告行
+                    createdAdGroups.add(adGroupId);
+                }
+                
+                // 3. 创建产品广告（每个SKU在其广告组下都要创建，即使属于同一广告活动）
+                const productAdKey = `${adGroupId}_${sku}`; // 广告组+SKU的唯一标识
+                if (!createdProductAds.has(productAdKey)) {
                     rows.push([
                         "Sponsored Products", "Product Ad", "Create", campaignId, adGroupId, "", "", "", "",
                         "", "", "", "", "", "enabled", "", sku, "", "", "", "", "", "", "", "", ""
                     ]);
                     
-                    createdAdGroups.add(adGroupId);
+                    createdProductAds.add(productAdKey);
                 }
                 
-                // 关键词行
+                // 4. 创建关键词行（每个关键词都创建）
                 rows.push([
                     "Sponsored Products", "Keyword", "Create", campaignId, adGroupId, "", "", "", "",
                     "", "", "", "", "", "enabled", "", "", "", bid, keyword, "", "", 
@@ -339,3 +346,4 @@ export const strategy4 = {
 
 // 暴露到全局，供主页面调用
 window.strategy4 = strategy4;
+    
