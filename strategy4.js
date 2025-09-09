@@ -1,4 +1,4 @@
-// 策略2模块 - 常规自定义表格匹配批量创建
+// 策略4模块 - 常规自定义表格匹配批量创建
 export const strategy4 = {
     // 存储关键词数据（包含完整信息）
     keywordsData: [],
@@ -7,7 +7,7 @@ export const strategy4 = {
     
     // 初始化方法：创建UI并绑定事件
     init(container) {
-        // 渲染策略2的UI
+        // 渲染策略4的UI
         container.innerHTML = this.getHtml();
         
         // 绑定DOM元素和事件
@@ -15,15 +15,14 @@ export const strategy4 = {
         this.bindEvents();
         
         // 显示初始化状态
-        // 显示初始化状态
-        this.showStatus('策略2已加载，可开始配置', 'success');
+        this.showStatus('策略4已加载，可开始配置', 'success');
     },
     
-    // 生成策略2的HTML结构
+    // 生成策略4的HTML结构
     getHtml() {
         return `
             <header class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">常规自定义表格匹配批量创建</h2>
+                <h2 class="text-xl font-bold text-gray-800">常规.自定义表格匹配批量创建</h2>
             </header>
 
             <form id="adForm" class="space-y-4">
@@ -301,8 +300,6 @@ export const strategy4 = {
                 const adGroupId = `${campaignId}_${adGroupName}`;
                 const productAdKey = `${adGroupId}_${sku}`;
                 const keywordKey = `${adGroupId}_${keywordText}_${matchType}`;
-                // 百分比+Placement组合的唯一标识（支持空值）
-                const placementKey = `${percentage}_${placement}`;
                 
                 // 初始化广告活动
                 if (!campaignStructure[campaignId]) {
@@ -311,23 +308,18 @@ export const strategy4 = {
                         name: campaignName,
                         budget: budget,
                         biddingStrategy: biddingStrategy,
-                        // 使用Map存储百分比+Placement组合（支持空值）
-                        placementMap: new Map(),
+                        // 只收集有实际值的百分比+Placement组合
+                        placementCombinations: new Set(),
                         adGroups: {}
                     };
                 }
                 
                 const campaign = campaignStructure[campaignId];
                 
-                // 只有当百分比和竞价位置不同时为空时才添加
-                if ((percentage || placement) && !(percentage === "" && placement === "")) {
-                    if (!campaign.placementMap.has(percentage)) {
-                        campaign.placementMap.set(percentage, new Set());
-                    }
-                    // 只添加非空的placement或与非空percentage组合的placement
-                    if (placement || percentage) {
-                        campaign.placementMap.get(percentage).add(placement);
-                    }
+                // 仅当百分比或竞价位置有实际值时才添加组合
+                if (percentage || placement) {
+                    const combinationKey = `${percentage}|${placement}`;
+                    campaign.placementCombinations.add(combinationKey);
                 }
                 
                 // 初始化广告组
@@ -358,26 +350,22 @@ export const strategy4 = {
             
             // 第二步：生成CSV行
             Object.values(campaignStructure).forEach(campaign => {
-                // 1. 广告活动只创建一次（无论百分比和竞价位置是否为空）
+                // 1. 广告活动只创建一次
                 rows.push([
                     "Sponsored Products", "Campaign", "Create", campaign.id, "", "", "", "", "",
                     campaign.name, "", today, "", "MANUAL", "enabled", campaign.budget, 
                     "", "", "", "", "", "", "", campaign.biddingStrategy, "", "", ""
                 ]);
                 
-                // 2. 只为非空的百分比+Placement组合添加Bidding Adjustment行
-                if (campaign.placementMap.size > 0) {
-                    campaign.placementMap.forEach((placements, percentage) => {
-                        Array.from(placements).forEach(placement => {
-                            // 只添加有实际内容的组合
-                            if (percentage || placement) {
-                                rows.push([
-                                    "Sponsored Products", "Bidding Adjustment", "Create", campaign.id, "", "", "", "", "",
-                                    "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                                    campaign.biddingStrategy, placement, percentage, ""
-                                ]);
-                            }
-                        });
+                // 2. 只为有实际值的百分比+Placement组合添加Bidding Adjustment行
+                if (campaign.placementCombinations.size > 0) {
+                    campaign.placementCombinations.forEach(combinationKey => {
+                        const [percentage, placement] = combinationKey.split('|');
+                        rows.push([
+                            "Sponsored Products", "Bidding Adjustment", "Create", campaign.id, "", "", "", "", "",
+                            "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+                            campaign.biddingStrategy, placement, percentage, ""
+                        ]);
                     });
                 }
                 
