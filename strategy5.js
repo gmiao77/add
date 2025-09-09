@@ -181,28 +181,36 @@ export const strategy5 = {
                 const invalidRows = [];
                 
                 jsonData.forEach((row, index) => {
+                    // 强制转换为字符串，即使是null/undefined也会转为"null"/"undefined"，再处理空值
                     const campaignId = String(row["Campaign ID"] || "").trim();
                     const adGroupId = String(row["Ad Group ID"] || "").trim();
                     const keyword = String(row["关键词"] || "").trim();
                     const asin = String(row["ASIN"] || "").trim();
                     
+                    // 额外处理：如果转换后是"null"或"undefined"，强制设为空字符串
+                    const cleanValue = (val) => val === "null" || val === "undefined" ? "" : val;
+                    const cleanedCampaignId = cleanValue(campaignId);
+                    const cleanedAdGroupId = cleanValue(adGroupId);
+                    const cleanedKeyword = cleanValue(keyword);
+                    const cleanedAsin = cleanValue(asin);
+                    
                     // 验证必要字段不为空
-                    if (!campaignId || !adGroupId) {
+                    if (!cleanedCampaignId || !cleanedAdGroupId) {
                         invalidRows.push(`行 ${index + 2}：Campaign ID或Ad Group ID为空`);
                         return;
                     }
                     
                     // 验证至少有一个可选字段
-                    if (!keyword && !asin) {
+                    if (!cleanedKeyword && !cleanedAsin) {
                         invalidRows.push(`行 ${index + 2}：关键词和ASIN不能同时为空`);
                         return;
                     }
                     
                     validRows.push({
-                        campaignId,
-                        adGroupId,
-                        keyword,
-                        asin
+                        campaignId: cleanedCampaignId,
+                        adGroupId: cleanedAdGroupId,
+                        keyword: cleanedKeyword,
+                        asin: cleanedAsin
                     });
                 });
                 
