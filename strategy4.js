@@ -1,5 +1,5 @@
 // 策略4模块 - 常规自定义表格匹配批量创建
-export const strategy1 = {
+export const strategy4 = {
     // 存储关键词数据（包含完整信息）
     keywordsData: [],
     // 标记是否正在处理文件上传，防止重复上传
@@ -435,5 +435,5 @@ export const strategy1 = {
 };
 
 // 暴露到全局，供主页面调用
-window.strategy1 = strategy1;
+window.strategy4 = strategy4;
     
