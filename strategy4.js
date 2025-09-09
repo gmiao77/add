@@ -1,4 +1,4 @@
-// 策略4模块 - 常规固定广告创建
+// 策略4模块 - 自定义表格匹配批量创建
 export const strategy4 = {
     // 存储关键词数据（包含完整信息）
     keywordsData: [],
@@ -22,14 +22,14 @@ export const strategy4 = {
     getHtml() {
         return `
             <header class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">常规关键词-ASIN广告批量创建</h2>
+                <h2 class="text-xl font-bold text-gray-800">自定义表格匹配批量创建</h2>
             </header>
 
             <form id="adForm" class="space-y-4">
-                <!-- 输入字段组 -->
+                <!-- 输入字段组 - 现在作为备用选项 -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700">匹配类型</label>
+                        <label class="block text-sm font-medium text-gray-700">匹配类型（表格中存在时优先使用表格数据）</label>
                         <select name="匹配类型" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="broad">broad</option>
@@ -39,7 +39,7 @@ export const strategy4 = {
                     </div>
 
                     <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700">竞价策略</label>
+                        <label class="block text-sm font-medium text-gray-700">竞价策略（表格中存在时优先使用表格数据）</label>
                         <select name="竞价策略" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="Fixed bid">Fixed bid</option>
@@ -49,7 +49,7 @@ export const strategy4 = {
                     </div>
 
                     <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700">竞价位置</label>
+                        <label class="block text-sm font-medium text-gray-700">竞价位置（表格中存在时优先使用表格数据）</label>
                         <select name="竞价位置"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="">请选择</option>
@@ -63,7 +63,7 @@ export const strategy4 = {
                 <!-- 按钮组 -->
                 <div class="flex flex-col sm:flex-row gap-4 pt-4">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（从Excel导入，需包含：关键词,SKU,BID,广告活动名称,广告组名称,预算，百分比可选）</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（支持包含：关键词,SKU,BID,广告活动名称,广告组名称,预算,百分比,匹配类型,竞价策略,竞价位置）</label>
                         <label class="flex items-center justify-center w-full">
                             <div class="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100" id="dropArea">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -205,13 +205,26 @@ export const strategy4 = {
                     }
                 });
                 
-                // 存储完整数据，百分比可选，默认为0
+                // 检查是否有可选的配置列
+                const hasMatchingType = '匹配类型' in firstRow;
+                const hasBiddingStrategy = '竞价策略' in firstRow;
+                const hasPlacement = '竞价位置' in firstRow;
+                
+                if (hasMatchingType || hasBiddingStrategy || hasPlacement) {
+                    this.showStatus(`检测到表格中包含配置列，将优先使用表格数据`, 'info');
+                }
+                
+                // 存储完整数据，处理可选字段
                 this.keywordsData = jsonData.filter(row => 
                     row.关键词 && row.SKU && row.BID && row.广告活动名称 && 
                     row.广告组名称 && row.预算
                 ).map(row => ({
                     ...row,
-                    百分比: row.百分比 || "0"
+                    百分比: row.百分比 || "0",
+                    // 标记是否有表格中的配置项
+                    hasMatchingType: hasMatchingType && row.匹配类型,
+                    hasBiddingStrategy: hasBiddingStrategy && row.竞价策略,
+                    hasPlacement: hasPlacement && row.竞价位置
                 }));
                 
                 if (this.keywordsData.length === 0) {
@@ -244,16 +257,22 @@ export const strategy4 = {
     // 生成广告模板
     generateTemplate() {
         try {
-            // 获取表单数据
+            // 获取表单数据（作为备用选项）
             const formData = new FormData(this.form);
-            const inputs = {};
-            formData.forEach((value, key) => inputs[key] = value);
+            const formInputs = {};
+            formData.forEach((value, key) => formInputs[key] = value);
             
-            // 验证必填项
-            const required = ["匹配类型", "竞价策略"];
-            required.forEach(field => {
-                if (!inputs[field]) throw new Error(`${field} 不能为空`);
-            });
+            // 验证表单必填项（仅当表格中没有对应列时需要）
+            const hasMatchingTypeInData = this.keywordsData.some(item => item.hasMatchingType);
+            const hasBiddingStrategyInData = this.keywordsData.some(item => item.hasBiddingStrategy);
+            
+            if (!hasMatchingTypeInData && !formInputs["匹配类型"]) {
+                throw new Error("匹配类型不能为空，请在表格中提供或从表单选择");
+            }
+            
+            if (!hasBiddingStrategyInData && !formInputs["竞价策略"]) {
+                throw new Error("竞价策略不能为空，请在表格中提供或从表单选择");
+            }
             
             // 验证数据
             if (this.keywordsData.length === 0) throw new Error("请先导入包含完整数据的Excel文件");
@@ -270,12 +289,8 @@ export const strategy4 = {
             ];
             const rows = [header];
             
-            // 按Campaign ID和Ad Group ID组织数据，确保完整的层级结构
-            // 数据结构: { campaignId: { adGroups: { adGroupId: { ... } }, ... } }
+            // 按Campaign ID和Ad Group ID组织数据，支持表格中的配置项
             const campaignStructure = {};
-            const processedCampaigns = new Set();
-            const processedAdGroups = new Set();
-            const processedProductAds = new Set();
             
             // 第一步：构建完整的广告活动结构
             this.keywordsData.forEach(item => {
@@ -287,8 +302,13 @@ export const strategy4 = {
                 const budget = item["预算"].toString().trim();
                 const percentage = item["百分比"] ? item["百分比"].toString().trim() : "0";
                 
-                // 生成唯一ID
-                const campaignId = `${campaignName}_${percentage}`;
+                // 优先使用表格中的配置项，否则使用表单中的
+                const matchType = item.hasMatchingType ? item["匹配类型"].trim() : formInputs["匹配类型"];
+                const biddingStrategy = item.hasBiddingStrategy ? item["竞价策略"].trim() : formInputs["竞价策略"];
+                const placement = item.hasPlacement ? item["竞价位置"].trim() : formInputs["竞价位置"];
+                
+                // 生成唯一ID，包含竞价策略以区分不同策略的相同活动名称
+                const campaignId = `${campaignName}_${percentage}_${biddingStrategy.replace(/\s+/g, '_')}`;
                 const adGroupId = `${campaignId}_${adGroupName}`;
                 const productAdKey = `${adGroupId}_${sku}`;
                 
@@ -299,8 +319,9 @@ export const strategy4 = {
                         name: campaignName,
                         budget: budget,
                         percentage: percentage,
-                        adGroups: {},
-                        biddingAdjustment: inputs["竞价位置"] ? inputs["竞价位置"] : null
+                        biddingStrategy: biddingStrategy,
+                        placement: placement, // 竞价位置，同一活动应保持一致
+                        adGroups: {}
                     };
                 }
                 
@@ -322,29 +343,29 @@ export const strategy4 = {
                 // 添加产品广告（去重）
                 adGroup.productAds.add(sku);
                 
-                // 添加关键词
+                // 添加关键词，包含匹配类型
                 adGroup.keywords.push({
                     text: keyword,
                     bid: bid,
-                    matchType: inputs["匹配类型"]
+                    matchType: matchType
                 });
             });
             
-            // 第二步：按广告活动顺序生成CSV行，确保每个活动的内容连续完整
+            // 第二步：按广告活动顺序生成CSV行
             Object.values(campaignStructure).forEach(campaign => {
                 // 1. 添加广告活动行
                 rows.push([
                     "Sponsored Products", "Campaign", "Create", campaign.id, "", "", "", "", "",
                     campaign.name, "", today, "", "MANUAL", "enabled", campaign.budget, 
-                    "", "", "", "", "", "", "", inputs["竞价策略"], "", "", ""
+                    "", "", "", "", "", "", "", campaign.biddingStrategy, "", "", ""
                 ]);
                 
                 // 2. 添加竞价调整行（如果有）
-                if (campaign.biddingAdjustment) {
+                if (campaign.placement) {
                     rows.push([
                         "Sponsored Products", "Bidding Adjustment", "Create", campaign.id, "", "", "", "", "",
                         "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                        inputs["竞价策略"], campaign.biddingAdjustment, campaign.percentage, ""
+                        campaign.biddingStrategy, campaign.placement, campaign.percentage, ""
                     ]);
                 }
                 
@@ -364,7 +385,7 @@ export const strategy4 = {
                         ]);
                     });
                     
-                    // 3.3 添加该广告组下的所有关键词行（紧跟在产品广告后）
+                    // 3.3 添加该广告组下的所有关键词行
                     adGroup.keywords.forEach(keyword => {
                         rows.push([
                             "Sponsored Products", "Keyword", "Create", campaign.id, adGroup.id, "", "", "", "",
