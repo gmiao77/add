@@ -181,10 +181,10 @@ export const strategy5 = {
                 const invalidRows = [];
                 
                 jsonData.forEach((row, index) => {
-                    const campaignId = (row["Campaign ID"] || "").trim();
-                    const adGroupId = (row["Ad Group ID"] || "").trim();
-                    const keyword = (row["关键词"] || "").trim();
-                    const asin = (row["ASIN"] || "").trim();
+                    const campaignId = String(row["Campaign ID"] || "").trim();
+                    const adGroupId = String(row["Ad Group ID"] || "").trim();
+                    const keyword = String(row["关键词"] || "").trim();
+                    const asin = String(row["ASIN"] || "").trim();
                     
                     // 验证必要字段不为空
                     if (!campaignId || !adGroupId) {
