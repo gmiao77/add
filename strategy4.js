@@ -270,7 +270,8 @@ export const strategy4 = {
             ];
             const rows = [header];
             
-            // 数据结构设计：支持同一广告活动下多个Placement共存
+            // 数据结构设计：同一广告活动支持不同百分比和Placement
+            // 核心改进：广告活动ID不包含百分比，使用Map存储百分比+Placement组合
             const campaignStructure = {};
             
             // 第一步：构建完整的广告活动结构
@@ -288,11 +289,13 @@ export const strategy4 = {
                 const biddingStrategy = item["竞价策略"].trim();
                 const placement = item.hasPlacement ? item["竞价位置"].trim() : "";
                 
-                // 生成广告活动ID（不含Placement，确保同一活动不会被拆分）
-                const campaignId = `${campaignName}_${percentage}_${biddingStrategy.replace(/\s+/g, '_')}`;
+                // 生成广告活动ID（不含百分比和Placement，确保同一活动不会被拆分）
+                const campaignId = `${campaignName}_${biddingStrategy.replace(/\s+/g, '_')}`;
                 const adGroupId = `${campaignId}_${adGroupName}`;
                 const productAdKey = `${adGroupId}_${sku}`;
                 const keywordKey = `${adGroupId}_${keywordText}_${matchType}`;
+                // 百分比+Placement组合的唯一标识
+                const placementKey = `${percentage}_${placement}`;
                 
                 // 初始化广告活动
                 if (!campaignStructure[campaignId]) {
@@ -300,18 +303,21 @@ export const strategy4 = {
                         id: campaignId,
                         name: campaignName,
                         budget: budget,
-                        percentage: percentage,
                         biddingStrategy: biddingStrategy,
-                        placements: new Set(), // 存储该活动的所有独特Placement
+                        // 使用Map存储百分比+Placement组合（百分比为键，值为包含Placement的Set）
+                        placementMap: new Map(),
                         adGroups: {}
                     };
                 }
                 
                 const campaign = campaignStructure[campaignId];
                 
-                // 添加Placement到集合（自动去重但保留所有独特值）
-                if (placement) {
-                    campaign.placements.add(placement);
+                // 添加百分比+Placement组合
+                if (percentage && placement) {
+                    if (!campaign.placementMap.has(percentage)) {
+                        campaign.placementMap.set(percentage, new Set());
+                    }
+                    campaign.placementMap.get(percentage).add(placement);
                 }
                 
                 // 初始化广告组
@@ -346,19 +352,21 @@ export const strategy4 = {
                 rows.push([
                     "Sponsored Products", "Campaign", "Create", campaign.id, "", "", "", "", "",
                     campaign.name, "", today, "", "MANUAL", "enabled", campaign.budget, 
-                    "", "", "", "", "", "", "", campaign.biddingStrategy, "", campaign.percentage, ""
+                    "", "", "", "", "", "", "", campaign.biddingStrategy, "", "", ""
                 ]);
                 
-                // 2. 为每个独特的Placement单独新增一行（共存逻辑）
-                Array.from(campaign.placements).forEach(placement => {
-                    rows.push([
-                        "Sponsored Products", "Bidding Adjustment", "Create", campaign.id, "", "", "", "", "",
-                        "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                        campaign.biddingStrategy, placement, campaign.percentage, ""
-                    ]);
+                // 2. 为每个百分比下的每个Placement单独新增一行
+                campaign.placementMap.forEach((placements, percentage) => {
+                    Array.from(placements).forEach(placement => {
+                        rows.push([
+                            "Sponsored Products", "Bidding Adjustment", "Create", campaign.id, "", "", "", "", "",
+                            "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+                            campaign.biddingStrategy, placement, percentage, ""
+                        ]);
+                    });
                 });
                 
-                // 3. 处理广告组
+                // 3. 处理广告组（只创建一次）
                 Object.values(campaign.adGroups).forEach(adGroup => {
                     // 3.1 广告组行
                     rows.push([
