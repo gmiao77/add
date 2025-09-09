@@ -51,7 +51,7 @@ export const strategy4 = {
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">竞价位置（表格中存在时将被忽略）</label>
                         <select name="竞价位置"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="">请选择</option>
                             <option value="placementTop">placementTop</option>
                             <option value="placementRestOfSearch">placementRestOfSearch</option>
@@ -118,7 +118,7 @@ export const strategy4 = {
             if (!this.isProcessingUpload) {
                 this.isProcessingUpload = true;
                 this.keywordFileInput.click();
-                // 超时自动重置，防止止意外状态锁定
+                // 超时自动重置，防止意外状态锁定
                 setTimeout(resetFileInput, 5000);
             }
         });
@@ -192,7 +192,7 @@ export const strategy4 = {
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 
-                // 验证必要字段（增加百分比为必填项）
+                // 验证必要字段
                 const requiredFields = [
                     '关键词', 'SKU', 'BID', '广告活动名称', 
                     '广告组名称', '预算', '匹配类型', '竞价策略', '百分比'
@@ -214,7 +214,7 @@ export const strategy4 = {
                     this.showStatus(`检测到表格中包含竞价位置列，将使用表格数据`, 'info');
                 }
                 
-                // 存储完整数据，直接使用表格中的百分比
+                // 存储完整数据
                 this.keywordsData = jsonData.filter(row => 
                     row.关键词 && row.SKU && row.BID && row.广告活动名称 && 
                     row.广告组名称 && row.预算 && row.匹配类型 && row.竞价策略 && 
@@ -226,7 +226,7 @@ export const strategy4 = {
                 }));
                 
                 if (this.keywordsData.length === 0) {
-                    this.showStatus('未找到有效数据行，请检查数据完整性，特别是百分比列必须有值', 'error');
+                    this.showStatus('未找到有效数据行，请检查数据完整性', 'error');
                     this.keywordStatus.textContent = '未找到有效数据';
                 } else {
                     this.showStatus(`成功加载 ${this.keywordsData.length} 条数据`, 'success');
@@ -270,8 +270,7 @@ export const strategy4 = {
             ];
             const rows = [header];
             
-            // 按Campaign ID组织数据，同一广告活动支持多个Placement
-            // 核心改进：使用Set存储同一广告活动的多个Placement
+            // 数据结构设计：支持同一广告活动下多个Placement共存
             const campaignStructure = {};
             
             // 第一步：构建完整的广告活动结构
@@ -283,13 +282,13 @@ export const strategy4 = {
                 const keywordText = item["关键词"].trim();
                 const budget = item["预算"].toString().trim();
                 
-                // 完全使用表格中的配置项
+                // 从表格获取所有配置
                 const percentage = item["百分比"].toString().trim();
                 const matchType = item["匹配类型"].trim();
                 const biddingStrategy = item["竞价策略"].trim();
                 const placement = item.hasPlacement ? item["竞价位置"].trim() : "";
                 
-                // 生成广告活动ID（不含不包含Placement，允许同一活动有多个Placement）
+                // 生成广告活动ID（不含Placement，确保同一活动不会被拆分）
                 const campaignId = `${campaignName}_${percentage}_${biddingStrategy.replace(/\s+/g, '_')}`;
                 const adGroupId = `${campaignId}_${adGroupName}`;
                 const productAdKey = `${adGroupId}_${sku}`;
@@ -303,14 +302,14 @@ export const strategy4 = {
                         budget: budget,
                         percentage: percentage,
                         biddingStrategy: biddingStrategy,
-                        placements: new Set(), // 使用Set存储多个不重复的Placement
+                        placements: new Set(), // 存储该活动的所有独特Placement
                         adGroups: {}
                     };
                 }
                 
                 const campaign = campaignStructure[campaignId];
                 
-                // 添加Placement（去重）
+                // 添加Placement到集合（自动去重但保留所有独特值）
                 if (placement) {
                     campaign.placements.add(placement);
                 }
@@ -341,16 +340,16 @@ export const strategy4 = {
                 }
             });
             
-            // 第二步：按广告活动顺序生成CSV行
+            // 第二步：生成CSV行
             Object.values(campaignStructure).forEach(campaign => {
-                // 1. 添加广告活动行（只创建一次）
+                // 1. 广告活动只创建一次
                 rows.push([
                     "Sponsored Products", "Campaign", "Create", campaign.id, "", "", "", "", "",
                     campaign.name, "", today, "", "MANUAL", "enabled", campaign.budget, 
                     "", "", "", "", "", "", "", campaign.biddingStrategy, "", campaign.percentage, ""
                 ]);
                 
-                // 2. 为每个Placement添加单独的竞价调整行
+                // 2. 为每个独特的Placement单独新增一行（共存逻辑）
                 Array.from(campaign.placements).forEach(placement => {
                     rows.push([
                         "Sponsored Products", "Bidding Adjustment", "Create", campaign.id, "", "", "", "", "",
@@ -359,15 +358,15 @@ export const strategy4 = {
                     ]);
                 });
                 
-                // 3. 处理该广告活动下的所有广告组
+                // 3. 处理广告组
                 Object.values(campaign.adGroups).forEach(adGroup => {
-                    // 3.1 添加广告组行
+                    // 3.1 广告组行
                     rows.push([
                         "Sponsored Products", "Ad Group", "Create", campaign.id, adGroup.id, "", "", "", "",
                         "", adGroup.name, "", "", "", "enabled", "", "", adGroup.bid, "", "", "", "", "", "", "", ""
                     ]);
                     
-                    // 3.2 添加产品广告行
+                    // 3.2 产品广告行
                     Array.from(adGroup.productAds).forEach(sku => {
                         rows.push([
                             "Sponsored Products", "Product Ad", "Create", campaign.id, adGroup.id, "", "", "", "",
@@ -375,7 +374,7 @@ export const strategy4 = {
                         ]);
                     });
                     
-                    // 3.3 添加关键词行
+                    // 3.3 关键词行
                     Array.from(adGroup.keywords.values()).forEach(keyword => {
                         rows.push([
                             "Sponsored Products", "Keyword", "Create", campaign.id, adGroup.id, "", "", "", "",
