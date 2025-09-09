@@ -292,12 +292,14 @@ export const strategy4 = {
                 const bid = item["BID"].toString().trim();
                 const keywordText = item["关键词"].trim();
                 const budget = item["预算"].toString().trim();
-                
-                // 从表格中获取匹配类型和百分比，确保使用表格数据
-                const matchType = item["匹配类型"].trim();
-                const percentage = item["百分比"].toString().trim();
+         
                 
                 // 优先使用表格中的配置项，否则使用表单
+                const matchType = item.hasMatchType ? 
+                    item["匹配类型"].trim() : formInputs["匹配类型"];
+                const biddingStrategy = item.hasBiddingStrategy ? 
+                const percentage = item.hasPercentage ? 
+                    item["百分比"].trim() : formInputs["百分比"];
                 const biddingStrategy = item.hasBiddingStrategy ? 
                     item["竞价策略"].trim() : formInputs["竞价策略"];
                 const placement = item.hasPlacement ? 
@@ -308,7 +310,7 @@ export const strategy4 = {
                 const adGroupId = `${campaignId}_${adGroupName}`;
                 const productAdKey = `${adGroupId}_${sku}`;
                 // 关键词去重依据：广告组ID + 关键词文本 + 匹配类型
-                const keywordKey = `${adGroupId}_${keywordText}_${matchType}`;
+                const keywordKey = `${campaignId}_${adGroupId}_${keywordText}_${matchType}`;
                 
                 // 初始化广告活动
                 if (!campaignStructure[campaignId]) {
