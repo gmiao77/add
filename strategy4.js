@@ -63,7 +63,7 @@ export const strategy4 = {
                 <!-- 按钮组 -->
                 <div class="flex flex-col sm:flex-row gap-4 pt-4">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（必须包含：关键词,SKU,BID,广告活动名称,广告组名称,预算,匹配类型,百分比，可选：竞价策略,竞价位置）</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（必须包含：关键词,SKU,BID,广告活动名称,广告组名称,预算,匹配类型,竞价策略,百分比，可选：竞价位置）</label>
                         <label class="flex items-center justify-center w-full">
                             <div class="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100" id="dropArea">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -170,7 +170,7 @@ export const strategy4 = {
         this.dropArea.classList.remove('border-indigo-500', 'bg-blue-50');
     },
     
-    // 处理关键词文件（重点处理百分比数据）
+    // 处理关键词文件（现在包含完整数据）
     handleKeywordFile(file) {
         // 清除现有数据，支持上传新文件而无需刷新页面
         this.keywordsData = [];
@@ -192,10 +192,10 @@ export const strategy4 = {
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 
-                // 验证必要字段（包含匹配类型和百分比）
+                // 验证必要字段（增加百分比为必填项）
                 const requiredFields = [
                     '关键词', 'SKU', 'BID', '广告活动名称', 
-                    '广告组名称', '预算', '匹配类型', '百分比'
+                    '广告组名称', '预算', '匹配类型', '竞价策略', '百分比'
                 ];
                 if (jsonData.length === 0) {
                     throw new Error('Excel文件中没有数据');
@@ -208,43 +208,28 @@ export const strategy4 = {
                     }
                 });
                 
-                // 检查是否有可选列
-                const hasBiddingStrategy = '竞价策略' in firstRow;
+                // 检查是否有可选的竞价位置列
                 const hasPlacement = '竞价位置' in firstRow;
-                
-                // 显示检测到的列信息
-                this.showStatus(`表格中检测到必要列：匹配类型、百分比`, 'info');
-                if (hasBiddingStrategy) {
-                    this.showStatus(`表格中包含竞价策略列，将使用表格数据`, 'info');
-                }
                 if (hasPlacement) {
-                    this.showStatus(`表格中包含竞价位置列，将使用表格数据`, 'info');
+                    this.showStatus(`检测到表格中包含竞价位置列，将使用表格数据`, 'info');
                 }
                 
-                // 存储完整数据，特别处理百分比，确保获取表格中的值
-                this.keywordsData = jsonData.filter(row => {
-                    // 特别检查百分比是否存在且有效
-                    const hasValidPercentage = row.百分比 !== undefined && row.百分比 !== null && row.百分比 !== '';
-                    return row.关键词 && row.SKU && row.BID && row.广告活动名称 && 
-                           row.广告组名称 && row.预算 && row.匹配类型 && hasValidPercentage;
-                }).map(row => {
-                    // 记录百分比值用于状态显示
-                    const percentageValue = row.百分比.toString().trim();
-                    return {
-                        ...row,
-                        percentageValue: percentageValue, // 存储原始百分比值
-                        hasBiddingStrategy: hasBiddingStrategy && row.竞价策略,
-                        hasPlacement: hasPlacement && row.竞价位置
-                    };
-                });
+                // 存储完整数据，直接使用表格中的百分比，不再默认0
+                this.keywordsData = jsonData.filter(row => 
+                    row.关键词 && row.SKU && row.BID && row.广告活动名称 && 
+                    row.广告组名称 && row.预算 && row.匹配类型 && row.竞价策略 && 
+                    (row.百分比 || row.百分比 === 0) // 允许0值，但必须存在
+                ).map(row => ({
+                    ...row,
+                    // 直接使用表格中的百分比，不设置默认值
+                    百分比: row.百分比.toString().trim(),
+                    hasPlacement: hasPlacement && row.竞价位置
+                }));
                 
                 if (this.keywordsData.length === 0) {
-                    this.showStatus('未找到有效数据行，请检查数据完整性，特别是百分比列', 'error');
+                    this.showStatus('未找到有效数据行，请检查数据完整性，特别是百分比列必须有值', 'error');
                     this.keywordStatus.textContent = '未找到有效数据';
                 } else {
-                    // 显示检测到的百分比范围
-                    const percentages = [...new Set(this.keywordsData.map(item => item.percentageValue))];
-                    this.showStatus(`检测到的百分比值：${percentages.join(', ')}`, 'info');
                     this.showStatus(`成功加载 ${this.keywordsData.length} 条数据`, 'success');
                     this.keywordStatus.textContent = `已加载 ${this.keywordsData.length} 条数据`;
                 }
@@ -268,14 +253,9 @@ export const strategy4 = {
         this.statusDisplay.scrollTop = this.statusDisplay.scrollHeight;
     },
     
-    // 生成广告模板（重点修复百分比使用问题）
+    // 生成广告模板
     generateTemplate() {
         try {
-            // 获取表单数据（仅作为表格中没有对应列时的备用）
-            const formData = new FormData(this.form);
-            const formInputs = {};
-            formData.forEach((value, key) => formInputs[key] = value);
-            
             // 验证数据
             if (this.keywordsData.length === 0) throw new Error("请先导入包含完整数据的Excel文件");
             
@@ -303,22 +283,16 @@ export const strategy4 = {
                 const keywordText = item["关键词"].trim();
                 const budget = item["预算"].toString().trim();
                 
-                // 从表格中获取匹配类型和百分比，确保使用表格数据
-                // 关键修复：直接使用表格中的百分比值，不设置默认值
+                // 完全使用表格中的配置项，包括百分比
+                const percentage = item["百分比"].toString().trim();
                 const matchType = item["匹配类型"].trim();
-                const percentage = item["百分比"].toString().trim(); // 直接使用表格值
+                const biddingStrategy = item["竞价策略"].trim();
+                const placement = item.hasPlacement ? item["竞价位置"].trim() : "";
                 
-                // 优先使用表格中的配置项，否则使用表单
-                const biddingStrategy = item.hasBiddingStrategy ? 
-                    item["竞价策略"].trim() : formInputs["竞价策略"];
-                const placement = item.hasPlacement ? 
-                    item["竞价位置"].trim() : formInputs["竞价位置"];
-                
-                // 生成唯一ID，包含所有关键参数
+                // 生成唯一ID，包含表格中的实际百分比
                 const campaignId = `${campaignName}_${percentage}_${biddingStrategy.replace(/\s+/g, '_')}`;
                 const adGroupId = `${campaignId}_${adGroupName}`;
                 const productAdKey = `${adGroupId}_${sku}`;
-                // 关键词去重依据：广告组ID + 关键词文本 + 匹配类型
                 const keywordKey = `${adGroupId}_${keywordText}_${matchType}`;
                 
                 // 初始化广告活动
@@ -327,13 +301,11 @@ export const strategy4 = {
                         id: campaignId,
                         name: campaignName,
                         budget: budget,
-                        percentage: percentage, // 存储表格中的百分比
+                        percentage: percentage, // 使用表格中的百分比
                         biddingStrategy: biddingStrategy,
                         placement: placement,
                         adGroups: {}
                     };
-                    // 调试信息：显示使用的百分比值
-                    console.log(`Campaign ${campaignName} 使用表格中的百分比: ${percentage}`);
                 }
                 
                 const campaign = campaignStructure[campaignId];
@@ -344,41 +316,41 @@ export const strategy4 = {
                         id: adGroupId,
                         name: adGroupName,
                         bid: bid,
-                        productAds: new Set(), // 用Set确保SKU唯一
-                        keywords: new Map() // 用Map确保关键词去重
+                        productAds: new Set(),
+                        keywords: new Map()
                     };
                 }
                 
                 const adGroup = campaign.adGroups[adGroupId];
                 
-                // 添加产品广告（去重）
+                // 添加产品广告
                 adGroup.productAds.add(sku);
                 
-                // 添加关键词（同一广告组中同一关键词+匹配类型只保留一个）
+                // 添加关键词（去重）
                 if (!adGroup.keywords.has(keywordKey)) {
                     adGroup.keywords.set(keywordKey, {
                         text: keywordText,
                         bid: bid,
-                        matchType: matchType // 使用表格中的匹配类型
+                        matchType: matchType
                     });
                 }
             });
             
             // 第二步：按广告活动顺序生成CSV行
             Object.values(campaignStructure).forEach(campaign => {
-                // 1. 添加广告活动行
+                // 1. 添加广告活动行，使用表格中的百分比
                 rows.push([
                     "Sponsored Products", "Campaign", "Create", campaign.id, "", "", "", "", "",
                     campaign.name, "", today, "", "MANUAL", "enabled", campaign.budget, 
-                    "", "", "", "", "", "", "", campaign.biddingStrategy, "", "", ""
+                    "", "", "", "", "", "", "", campaign.biddingStrategy, "", campaign.percentage, ""
                 ]);
                 
-                // 2. 添加竞价调整行（如果有）
+                // 2. 添加竞价调整行，使用表格中的百分比
                 if (campaign.placement) {
                     rows.push([
                         "Sponsored Products", "Bidding Adjustment", "Create", campaign.id, "", "", "", "", "",
                         "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                        campaign.biddingStrategy, campaign.placement, campaign.percentage, "" // 关键修复：使用表格中的百分比
+                        campaign.biddingStrategy, campaign.placement, campaign.percentage, ""
                     ]);
                 }
                 
@@ -390,7 +362,7 @@ export const strategy4 = {
                         "", adGroup.name, "", "", "", "enabled", "", "", adGroup.bid, "", "", "", "", "", "", "", ""
                     ]);
                     
-                    // 3.2 添加该广告组下的所有产品广告行（连续排列）
+                    // 3.2 添加产品广告行
                     Array.from(adGroup.productAds).forEach(sku => {
                         rows.push([
                             "Sponsored Products", "Product Ad", "Create", campaign.id, adGroup.id, "", "", "", "",
@@ -398,12 +370,12 @@ export const strategy4 = {
                         ]);
                     });
                     
-                    // 3.3 添加该广告组下的所有关键词行（已去重）
+                    // 3.3 添加关键词行
                     Array.from(adGroup.keywords.values()).forEach(keyword => {
                         rows.push([
                             "Sponsored Products", "Keyword", "Create", campaign.id, adGroup.id, "", "", "", "",
                             "", "", "", "", "", "enabled", "", "", "", keyword.bid, keyword.text, "", "", 
-                            keyword.matchType, "", "", "" // 使用表格中的匹配类型
+                            keyword.matchType, "", "", ""
                         ]);
                     });
                 });
@@ -427,7 +399,6 @@ export const strategy4 = {
             document.body.removeChild(a);
             
             this.showStatus(`模板生成成功，共 ${rows.length - 1} 行数据`, 'success');
-            this.showStatus(`已使用表格中的匹配类型和百分比数据`, 'info');
         } catch (error) {
             this.showStatus(`生成失败: ${error.message}`, 'error');
         }
