@@ -51,7 +51,7 @@ export const strategy4 = {
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">竞价位置（表格中存在时将被忽略）</label>
                         <select name="竞价位置"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="">请选择</option>
                             <option value="placementTop">placementTop</option>
                             <option value="placementRestOfSearch">placementRestOfSearch</option>
@@ -118,7 +118,7 @@ export const strategy4 = {
             if (!this.isProcessingUpload) {
                 this.isProcessingUpload = true;
                 this.keywordFileInput.click();
-                // 超时自动重置，防止意外状态锁定
+                // 超时自动重置，防止止意外状态锁定
                 setTimeout(resetFileInput, 5000);
             }
         });
@@ -214,14 +214,13 @@ export const strategy4 = {
                     this.showStatus(`检测到表格中包含竞价位置列，将使用表格数据`, 'info');
                 }
                 
-                // 存储完整数据，直接使用表格中的百分比，不再默认0
+                // 存储完整数据，直接使用表格中的百分比
                 this.keywordsData = jsonData.filter(row => 
                     row.关键词 && row.SKU && row.BID && row.广告活动名称 && 
                     row.广告组名称 && row.预算 && row.匹配类型 && row.竞价策略 && 
-                    (row.百分比 || row.百分比 === 0) // 允许0值，但必须存在
+                    (row.百分比 || row.百分比 === 0)
                 ).map(row => ({
                     ...row,
-                    // 直接使用表格中的百分比，不设置默认值
                     百分比: row.百分比.toString().trim(),
                     hasPlacement: hasPlacement && row.竞价位置
                 }));
@@ -271,7 +270,8 @@ export const strategy4 = {
             ];
             const rows = [header];
             
-            // 按Campaign ID和Ad Group ID组织数据
+            // 按Campaign ID组织数据，同一广告活动支持多个Placement
+            // 核心改进：使用Set存储同一广告活动的多个Placement
             const campaignStructure = {};
             
             // 第一步：构建完整的广告活动结构
@@ -283,13 +283,13 @@ export const strategy4 = {
                 const keywordText = item["关键词"].trim();
                 const budget = item["预算"].toString().trim();
                 
-                // 完全使用表格中的配置项，包括百分比
+                // 完全使用表格中的配置项
                 const percentage = item["百分比"].toString().trim();
                 const matchType = item["匹配类型"].trim();
                 const biddingStrategy = item["竞价策略"].trim();
                 const placement = item.hasPlacement ? item["竞价位置"].trim() : "";
                 
-                // 生成唯一ID，包含表格中的实际百分比
+                // 生成广告活动ID（不含不包含Placement，允许同一活动有多个Placement）
                 const campaignId = `${campaignName}_${percentage}_${biddingStrategy.replace(/\s+/g, '_')}`;
                 const adGroupId = `${campaignId}_${adGroupName}`;
                 const productAdKey = `${adGroupId}_${sku}`;
@@ -301,14 +301,19 @@ export const strategy4 = {
                         id: campaignId,
                         name: campaignName,
                         budget: budget,
-                        percentage: percentage, // 使用表格中的百分比
+                        percentage: percentage,
                         biddingStrategy: biddingStrategy,
-                        placement: placement,
+                        placements: new Set(), // 使用Set存储多个不重复的Placement
                         adGroups: {}
                     };
                 }
                 
                 const campaign = campaignStructure[campaignId];
+                
+                // 添加Placement（去重）
+                if (placement) {
+                    campaign.placements.add(placement);
+                }
                 
                 // 初始化广告组
                 if (!campaign.adGroups[adGroupId]) {
@@ -338,21 +343,21 @@ export const strategy4 = {
             
             // 第二步：按广告活动顺序生成CSV行
             Object.values(campaignStructure).forEach(campaign => {
-                // 1. 添加广告活动行，使用表格中的百分比
+                // 1. 添加广告活动行（只创建一次）
                 rows.push([
                     "Sponsored Products", "Campaign", "Create", campaign.id, "", "", "", "", "",
                     campaign.name, "", today, "", "MANUAL", "enabled", campaign.budget, 
                     "", "", "", "", "", "", "", campaign.biddingStrategy, "", campaign.percentage, ""
                 ]);
                 
-                // 2. 添加竞价调整行，使用表格中的百分比
-                if (campaign.placement) {
+                // 2. 为每个Placement添加单独的竞价调整行
+                Array.from(campaign.placements).forEach(placement => {
                     rows.push([
                         "Sponsored Products", "Bidding Adjustment", "Create", campaign.id, "", "", "", "", "",
                         "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                        campaign.biddingStrategy, campaign.placement, campaign.percentage, ""
+                        campaign.biddingStrategy, placement, campaign.percentage, ""
                     ]);
-                }
+                });
                 
                 // 3. 处理该广告活动下的所有广告组
                 Object.values(campaign.adGroups).forEach(adGroup => {
