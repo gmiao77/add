@@ -1,5 +1,5 @@
-// 策略1模块 - 常规自定义表格匹配批量创建
-export const strategy4 = {
+// 策略4模块 - 常规自定义表格匹配批量创建
+export const strategy1 = {
     // 存储关键词数据（包含完整信息）
     keywordsData: [],
     // 标记是否正在处理文件上传，防止重复上传
@@ -7,7 +7,7 @@ export const strategy4 = {
     
     // 初始化方法：创建UI并绑定事件
     init(container) {
-        // 渲染策略1的UI
+        // 渲染策略4的UI
         container.innerHTML = this.getHtml();
         
         // 绑定DOM元素和事件
@@ -15,10 +15,10 @@ export const strategy4 = {
         this.bindEvents();
         
         // 显示初始化状态
-        this.showStatus('策略1已加载，可开始配置', 'success');
+        this.showStatus('策略4已加载，可开始配置', 'success');
     },
     
-    // 生成策略1的HTML结构
+    // 生成策略4的HTML结构
     getHtml() {
         return `
             <header class="mb-6">
@@ -170,7 +170,7 @@ export const strategy4 = {
         this.dropArea.classList.remove('border-indigo-500', 'bg-blue-50');
     },
     
-    // 处理关键词文件（现在包含完整数据）
+    // 处理关键词文件（重点处理百分比数据）
     handleKeywordFile(file) {
         // 清除现有数据，支持上传新文件而无需刷新页面
         this.keywordsData = [];
@@ -195,7 +195,7 @@ export const strategy4 = {
                 // 验证必要字段（包含匹配类型和百分比）
                 const requiredFields = [
                     '关键词', 'SKU', 'BID', '广告活动名称', 
-                    '广告组名称', '预算'
+                    '广告组名称', '预算', '匹配类型', '百分比'
                 ];
                 if (jsonData.length === 0) {
                     throw new Error('Excel文件中没有数据');
@@ -221,20 +221,30 @@ export const strategy4 = {
                     this.showStatus(`表格中包含竞价位置列，将使用表格数据`, 'info');
                 }
                 
-                // 存储完整数据，处理可选字段
-                this.keywordsData = jsonData.filter(row => 
-                    row.关键词 && row.SKU && row.BID && row.广告活动名称 && 
-                    row.广告组名称 && row.预算 && row.匹配类型 && row.百分比 !== undefined
-                ).map(row => ({
-                    ...row,
-                    hasBiddingStrategy: hasBiddingStrategy && row.竞价策略,
-                    hasPlacement: hasPlacement && row.竞价位置
-                }));
+                // 存储完整数据，特别处理百分比，确保获取表格中的值
+                this.keywordsData = jsonData.filter(row => {
+                    // 特别检查百分比是否存在且有效
+                    const hasValidPercentage = row.百分比 !== undefined && row.百分比 !== null && row.百分比 !== '';
+                    return row.关键词 && row.SKU && row.BID && row.广告活动名称 && 
+                           row.广告组名称 && row.预算 && row.匹配类型 && hasValidPercentage;
+                }).map(row => {
+                    // 记录百分比值用于状态显示
+                    const percentageValue = row.百分比.toString().trim();
+                    return {
+                        ...row,
+                        percentageValue: percentageValue, // 存储原始百分比值
+                        hasBiddingStrategy: hasBiddingStrategy && row.竞价策略,
+                        hasPlacement: hasPlacement && row.竞价位置
+                    };
+                });
                 
                 if (this.keywordsData.length === 0) {
-                    this.showStatus('未找到有效数据行，请检查数据完整性', 'error');
+                    this.showStatus('未找到有效数据行，请检查数据完整性，特别是百分比列', 'error');
                     this.keywordStatus.textContent = '未找到有效数据';
                 } else {
+                    // 显示检测到的百分比范围
+                    const percentages = [...new Set(this.keywordsData.map(item => item.percentageValue))];
+                    this.showStatus(`检测到的百分比值：${percentages.join(', ')}`, 'info');
                     this.showStatus(`成功加载 ${this.keywordsData.length} 条数据`, 'success');
                     this.keywordStatus.textContent = `已加载 ${this.keywordsData.length} 条数据`;
                 }
@@ -258,7 +268,7 @@ export const strategy4 = {
         this.statusDisplay.scrollTop = this.statusDisplay.scrollHeight;
     },
     
-    // 生成广告模板
+    // 生成广告模板（重点修复百分比使用问题）
     generateTemplate() {
         try {
             // 获取表单数据（仅作为表格中没有对应列时的备用）
@@ -292,14 +302,13 @@ export const strategy4 = {
                 const bid = item["BID"].toString().trim();
                 const keywordText = item["关键词"].trim();
                 const budget = item["预算"].toString().trim();
-         
+                
+                // 从表格中获取匹配类型和百分比，确保使用表格数据
+                // 关键修复：直接使用表格中的百分比值，不设置默认值
+                const matchType = item["匹配类型"].trim();
+                const percentage = item["百分比"].toString().trim(); // 直接使用表格值
                 
                 // 优先使用表格中的配置项，否则使用表单
-                const matchType = item.hasMatchType ? 
-                    item["匹配类型"].trim() : formInputs["匹配类型"];
-                const biddingStrategy = item.hasBiddingStrategy ? 
-                const percentage = item.hasPercentage ? 
-                    item["百分比"].trim() : formInputs["百分比"];
                 const biddingStrategy = item.hasBiddingStrategy ? 
                     item["竞价策略"].trim() : formInputs["竞价策略"];
                 const placement = item.hasPlacement ? 
@@ -310,7 +319,7 @@ export const strategy4 = {
                 const adGroupId = `${campaignId}_${adGroupName}`;
                 const productAdKey = `${adGroupId}_${sku}`;
                 // 关键词去重依据：广告组ID + 关键词文本 + 匹配类型
-                const keywordKey = `${campaignId}_${adGroupId}_${keywordText}_${matchType}`;
+                const keywordKey = `${adGroupId}_${keywordText}_${matchType}`;
                 
                 // 初始化广告活动
                 if (!campaignStructure[campaignId]) {
@@ -318,11 +327,13 @@ export const strategy4 = {
                         id: campaignId,
                         name: campaignName,
                         budget: budget,
-                        percentage: percentage,
+                        percentage: percentage, // 存储表格中的百分比
                         biddingStrategy: biddingStrategy,
                         placement: placement,
                         adGroups: {}
                     };
+                    // 调试信息：显示使用的百分比值
+                    console.log(`Campaign ${campaignName} 使用表格中的百分比: ${percentage}`);
                 }
                 
                 const campaign = campaignStructure[campaignId];
@@ -367,7 +378,7 @@ export const strategy4 = {
                     rows.push([
                         "Sponsored Products", "Bidding Adjustment", "Create", campaign.id, "", "", "", "", "",
                         "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                        campaign.biddingStrategy, campaign.placement, campaign.percentage, "" // 使用表格中的百分比
+                        campaign.biddingStrategy, campaign.placement, campaign.percentage, "" // 关键修复：使用表格中的百分比
                     ]);
                 }
                 
@@ -424,5 +435,5 @@ export const strategy4 = {
 };
 
 // 暴露到全局，供主页面调用
-window.strategy4 = strategy4;
+window.strategy1 = strategy1;
     
