@@ -22,7 +22,7 @@ export const strategy4 = {
     getHtml() {
         return `
             <header class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">常规.自定义表格匹配批量创建</h2>
+                <h2 class="text-xl font-bold text-gray-800">自定义表格批量匹配</h2>
             </header>
 
             <form id="adForm" class="space-y-4">
@@ -170,7 +170,7 @@ export const strategy4 = {
         this.dropArea.classList.remove('border-indigo-500', 'bg-blue-50');
     },
     
-    // 处理关键词文件（支持百分比和竞价位置为空）
+    // 处理关键词文件（增加竞价策略一致性检查）
     handleKeywordFile(file) {
         // 清除现有数据，支持上传新文件而无需刷新页面
         this.keywordsData = [];
@@ -192,7 +192,7 @@ export const strategy4 = {
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 
-                // 验证必要字段（百分比和竞价位置不再是必填项）
+                // 验证必要字段
                 const requiredFields = [
                     '关键词', 'SKU', 'BID', '广告活动名称', 
                     '广告组名称', '预算', '匹配类型', '竞价策略'
@@ -207,6 +207,44 @@ export const strategy4 = {
                         throw new Error(`Excel文件缺少必要列: ${field}`);
                     }
                 });
+                
+                // 检查广告活动名称相同但竞价策略不同的情况
+                const campaignBiddingStrategies = new Map(); // 存储广告活动名称与对应的竞价策略
+                const rowErrors = []; // 存储有问题的行信息
+                
+                jsonData.forEach((row, index) => {
+                    const campaignName = (row["广告活动名称"] || "").trim();
+                    const biddingStrategy = (row["竞价策略"] || "").trim();
+                    
+                    if (campaignName && biddingStrategy) {
+                        // 如果广告活动已存在于映射中
+                        if (campaignBiddingStrategies.has(campaignName)) {
+                            // 检查竞价策略是否一致
+                            if (campaignBiddingStrategies.get(campaignName) !== biddingStrategy) {
+                                // 记录错误行（Excel行号=索引+2，因为首行为标题行）
+                                rowErrors.push({
+                                    row: index + 2,
+                                    campaign: campaignName,
+                                    expected: campaignBiddingStrategies.get(campaignName),
+                                    actual: biddingStrategy
+                                });
+                            }
+                        } else {
+                            // 首次出现的广告活动，记录其竞价策略
+                            campaignBiddingStrategies.set(campaignName, biddingStrategy);
+                        }
+                    }
+                });
+                
+                // 如果有不一致的情况，抛出错误
+                if (rowErrors.length > 0) {
+                    let errorMessage = "发现广告活动名称相同但竞价策略不一致的行：\n";
+                    rowErrors.forEach(err => {
+                        errorMessage += `- 行 ${err.row}：广告活动"${err.campaign}" 存在不同的竞价策略（预期：${err.expected}，实际：${err.actual}）\n`;
+                    });
+                    errorMessage += "请检查并确保同一广告活动的竞价策略一致。";
+                    throw new Error(errorMessage);
+                }
                 
                 // 检查是否有可选的百分比和竞价位置列
                 const hasPercentage = '百分比' in firstRow;
@@ -225,9 +263,7 @@ export const strategy4 = {
                     row.广告组名称 && row.预算 && row.匹配类型 && row.竞价策略
                 ).map(row => ({
                     ...row,
-                    // 处理可能为空的百分比
                     百分比: hasPercentage ? (row.百分比 || row.百分比 === 0 ? row.百分比.toString().trim() : "") : "",
-                    // 处理可能为空的竞价位置
                     hasPlacement: hasPlacement,
                     竞价位置: hasPlacement ? (row.竞价位置 ? row.竞价位置.trim() : "") : ""
                 }));
@@ -236,7 +272,7 @@ export const strategy4 = {
                     this.showStatus('未找到有效数据行，请检查数据完整性', 'error');
                     this.keywordStatus.textContent = '未找到有效数据';
                 } else {
-                    this.showStatus(`成功加载 ${this.keywordsData.length} 条数据`, 'success');
+                    this.showStatus(`成功加载 ${this.keywordsData.length} 条数据，所有广告活动的竞价策略一致`, 'success');
                     this.keywordStatus.textContent = `已加载 ${this.keywordsData.length} 条数据`;
                 }
             } catch (error) {
