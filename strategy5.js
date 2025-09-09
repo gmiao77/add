@@ -26,16 +26,9 @@ export const strategy5 = {
             </header>
 
             <form id="negativeForm" class="space-y-4">
-                <!-- 输入字段组 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700">否定关键词匹配类型</label>
-                        <select name="否定匹配类型" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="negativeExact">negativeExact</option>
-                            <option value="negativePhrase">negativePhrase</option>
-                        </select>
-                    </div>
+                <!-- 重要提示说明 -->
+                <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <p class="text-sm text-yellow-800"><i class="fa fa-info-circle mr-1"></i> 请注意：Campaign ID, Ad Group ID不能自定义，必须与后台实际id一致</p>
                 </div>
 
                 <!-- 按钮组 -->
@@ -80,7 +73,6 @@ export const strategy5 = {
         this.statusDisplay = document.getElementById('statusDisplay');
         this.generateBtn = document.getElementById('generateBtn');
         this.dropArea = document.getElementById('dropArea');
-        this.matchTypeSelect = this.form.querySelector('select[name="否定匹配类型"]');
     },
     
     // 绑定事件处理函数
@@ -254,9 +246,6 @@ export const strategy5 = {
             // 验证数据
             if (this.tableData.length === 0) throw new Error("请先导入包含完整数据的Excel文件");
             
-            // 获取选中的匹配类型
-            const matchType = this.matchTypeSelect.value;
-            
             // 构建CSV
             const header = [
                 "Product", "Entity", "Operation", "Campaign ID", "Ad Group ID", "Portfolio ID", "Ad ID",
@@ -279,13 +268,13 @@ export const strategy5 = {
                     ]);
                 }
                 
-                // 处理关键词（生成否定关键词行）
+                // 处理关键词（生成否定关键词行，使用默认的negativeExact匹配类型）
                 if (item.keyword) {
                     rows.push([
                         "Sponsored Products", "Negative Keyword", "Create",
                         item.campaignId, item.adGroupId, "", "", "", "",
                         "", "", "", "", "", "enabled", "", "", "", "",
-                        item.keyword, "", "", matchType, "", "", "", ""
+                        item.keyword, "", "", "negativeExact", "", "", "", ""
                     ]);
                 }
             });
