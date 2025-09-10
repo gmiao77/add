@@ -20,7 +20,7 @@ export const strategy1 = {
     getHtml() {
         return `
             <header class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">Amazon关键词广告批量创建1.3</h2>
+                <h2 class="text-xl font-bold text-gray-800">关键词广告批量创建</h2>
             </header>
 
             <form id="adForm" class="space-y-4">
@@ -101,7 +101,7 @@ export const strategy1 = {
 
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">复制次数</label>
-                        <input type="number" name="复制次数" required min="1" max="100" value="1"
+                        <input type="number" name="复制次数" required min="0" max="100" value="0"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
                 </div>
@@ -208,7 +208,7 @@ export const strategy1 = {
         if (file) this.handleKeywordFile(file);
     },
     
-    // 处理关键词文件
+    // 处理关键词文件（修复：跳过表头行）
     handleKeywordFile(file) {
         if (!file.name.endsWith('.xlsx')) {
             this.showStatus('请上传.xlsx格式的Excel文件', 'error');
@@ -226,9 +226,10 @@ export const strategy1 = {
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                 
-                // 提取关键词
+                // 提取关键词（跳过第一行表头）
                 this.keywords = [];
-                jsonData.forEach(row => {
+                // 从索引1开始遍历，跳过第一行表头
+                jsonData.slice(1).forEach(row => {
                     const value = row[0];
                     if (value && typeof value === 'string' && value.trim()) {
                         this.keywords.push(value.trim());
@@ -277,7 +278,7 @@ export const strategy1 = {
         return groups;
     },
     
-    // 生成广告模板
+    // 生成广告模板（修复：复制次数为0时不加后缀）
     generateTemplate() {
         try {
             // 获取表单数据
@@ -296,7 +297,7 @@ export const strategy1 = {
             if (this.keywords.length === 0) throw new Error("请先导入关键词");
             
             // 处理参数
-            const copyCount = Math.min(100, Math.max(1, parseInt(inputs["复制次数"]) || 1));
+            const copyCount = Math.min(100, Math.max(0, parseInt(inputs["复制次数"]) || 0));
             const groupCount = Math.max(1, parseInt(inputs["关键词分组数量"]) || 1);
             const skus = inputs["SKU"].split(",").map(s => s.trim()).filter(s => s);
             const bids = inputs["bid"].split(",").map(b => b.trim()).filter(b => b);
@@ -321,8 +322,9 @@ export const strategy1 = {
             const rows = [header];
             
             // 生成数据行（核心逻辑）
-            for (let n = 0; n < copyCount; n++) {
-                const suffix = `复制组${n + 1}`;
+            for (let n = 0; n < (copyCount || 1); n++) {
+                // 仅当复制次数大于1时才添加后缀，0或1时不添加
+                const suffix = copyCount > 1 ? `复制组${n + 1}` : '';
                 
                 if (inputs.sku_independent) {
                     // 所有SKU同一活动
@@ -330,108 +332,74 @@ export const strategy1 = {
                         groupedKeywords.forEach((group, gIdx) => {
                             const gSuffix = `A${gIdx + 1}`;
                             percentages.forEach(percent => {
-                                // 广告活动ID和名称格式修正
-                                const campaignId = `${inputs['广告活动名称']}_${gSuffix}_${bid}_${suffix}`;
+                                // 广告活动ID（处理后缀拼接）
+                                const baseCampaignId = `${inputs['广告活动名称']}_${gSuffix}_${bid}_${percent}`;
+                                const campaignId = suffix ? `${baseCampaignId}_${suffix}` : baseCampaignId;
                                 
-                                // 广告活动行（修正列映射）
+                                // 广告活动行（使用处理后的campaignId）
                                 rows.push([
-                                    "Sponsored Products", "Campaign", "Create", 
-                                    campaignId,  // Campaign ID
-                                    "", "", "", "", "", 
-                                    campaignId,  // Campaign Name
-                                    "", 
-                                    today,  // Start Date
-                                    "", 
-                                    "MANUAL",  // Targeting Type
-                                    "enabled",  // State
-                                    inputs["预算"],  // Daily Budget
-                                    "", "", "", "", "", "", "", "", 
-                                    inputs["竞价策略"],  // Bidding Strategy
-                                    "", "", ""
+                                    "Sponsored Products", "Campaign", "Create", campaignId, "", "", "", "", "",
+                                    campaignId, "", today, "", "MANUAL", "enabled", inputs["预算"], 
+                                    "", "", "", "", "", "", "", inputs["竞价策略"], "", "", ""
                                 ]);
                                 
-                                // 竞价调整行（修正列映射）
+                                // 竞价调整行
                                 if (inputs["竞价位置"]) {
                                     rows.push([
                                         "Sponsored Products", "Bidding Adjustment", "Create", 
-                                        campaignId,  // Campaign ID
-                                        "", "", "", "", "", 
+                                        campaignId, "", "", "", "", "", 
                                         "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
-                                        inputs["竞价策略"],  // Bidding Strategy
-                                        inputs["竞价位置"],  // Placement
-                                        percent,  // Percentage
-                                        ""
+                                        inputs["竞价策略"], inputs["竞价位置"], percent, ""
                                     ]);
                                 }
                                 
-                                // 广告组ID格式修正
-                                const adGroupId = `${inputs['广告组名称']}_${gSuffix}_${bid}_${suffix}`;
+                                // 广告组ID（处理后缀拼接）
+                                const baseAdGroupId = `${inputs['广告组名称']}_${gSuffix}_${bid}_${percent}`;
+                                const adGroupId = suffix ? `${baseAdGroupId}_${suffix}` : baseAdGroupId;
                                 
-                                // 广告组行（修正列映射）
+                                // 广告组行（使用处理后的adGroupId）
                                 rows.push([
-                                    "Sponsored Products", "Ad Group", "Create", 
-                                    campaignId,  // Campaign ID
-                                    adGroupId,  // Ad Group ID
-                                    "", "", "", "", 
-                                    "", 
-                                    adGroupId,  // Ad Group Name
-                                    "", "", "", "", 
-                                    "enabled",  // State
-                                    "", "", 
-                                    bid,  // Ad Group Default Bid
-                                    "", "", "", "", "", "", "", "", ""
+                                    "Sponsored Products", "Ad Group", "Create", campaignId, adGroupId, "", "", "", "",
+                                    "", adGroupId, "", "", "", "enabled", "", "", bid, "", "", "", "", "", "", "", ""
                                 ]);
                                 
-                                // 产品广告行（修正列映射）
+                                // 产品广告行
                                 skus.forEach(sku => {
                                     rows.push([
                                         "Sponsored Products", "Product Ad", "Create", 
-                                        campaignId,  // Campaign ID
-                                        adGroupId,  // Ad Group ID
-                                        "", "", "", "", 
-                                        "", "", "", "", "", 
-                                        "enabled",  // State
-                                        "", 
-                                        sku,  // SKU
-                                        "", "", "", "", "", "", "", "", ""
+                                        campaignId, adGroupId, "", "", "", "", 
+                                        "", "", "", "", "", "enabled", "", sku, "", "", "", "", "", "", "", "", ""
                                     ]);
                                 });
                                 
-                                // 关键词行（修正列映射）
+                                // 关键词行
                                 group.forEach(keyword => {
                                     rows.push([
                                         "Sponsored Products", "Keyword", "Create", 
-                                        campaignId,  // Campaign ID
-                                        adGroupId,  // Ad Group ID
-                                        "", "", "", "", 
-                                        "", "", "", "", "", 
-                                        "enabled",  // State
-                                        "", "", "", 
-                                        bid,  // Bid
-                                        keyword,  // Keyword Text
-                                        "", "", 
-                                        inputs["匹配类型"],  // Match Type
-                                        "", "", ""
+                                        campaignId, adGroupId, "", "", "", "", 
+                                        "", "", "", "", "", "enabled", "", "", "", 
+                                        bid, keyword, "", "", inputs["匹配类型"], "", "", ""
                                     ]);
                                 });
                             });
                         });
                     });
                 } else {
-                    // 每个SKU独立活动（保持原有逻辑，仅修正列映射）
+                    // 每个SKU独立活动
                     skus.forEach(sku => {
                         bids.forEach(bid => {
                             groupedKeywords.forEach((group, gIdx) => {
                                 const gSuffix = `A${gIdx + 1}`;
                                 percentages.forEach(percent => {
+                                    // 广告活动ID（处理后缀拼接）
+                                    const baseCampaignId = `${inputs['广告活动名称']}_${sku}_${gSuffix}_${bid}_${percent}`;
+                                    const campaignId = suffix ? `${baseCampaignId}_${suffix}` : baseCampaignId;
+                                    
                                     // 广告活动行
-                                    const campaignId = `${inputs['广告活动名称']}_${sku}_${gSuffix}_${bid}_${percent}_${suffix}`;
                                     rows.push([
-                                        "Sponsored Products", "Campaign", "Create", 
-                                        campaignId, "", "", "", "", "", 
-                                        campaignId, "", today, "", "MANUAL", "enabled", 
-                                        inputs["预算"], "", "", "", "", "", "", "", 
-                                        inputs["竞价策略"], "", "", ""
+                                        "Sponsored Products", "Campaign", "Create", campaignId, "", "", "", "", "",
+                                        campaignId, "", today, "", "MANUAL", "enabled", inputs["预算"], 
+                                        "", "", "", "", "", "", "", inputs["竞价策略"], "", "", ""
                                     ]);
                                     
                                     // 竞价调整行
@@ -444,13 +412,14 @@ export const strategy1 = {
                                         ]);
                                     }
                                     
+                                    // 广告组ID（处理后缀拼接）
+                                    const baseAdGroupId = `${inputs['广告组名称']}_${sku}_${gSuffix}_${bid}_${percent}`;
+                                    const adGroupId = suffix ? `${baseAdGroupId}_${suffix}` : baseAdGroupId;
+                                    
                                     // 广告组行
-                                    const adGroupId = `${inputs['广告组名称']}_${sku}_${gSuffix}_${bid}_${percent}_${suffix}`;
                                     rows.push([
-                                        "Sponsored Products", "Ad Group", "Create", 
-                                        campaignId, adGroupId, "", "", "", "", 
-                                        "", adGroupId, "", "", "", "enabled", 
-                                        "", "", bid, "", "", "", "", "", "", "", ""
+                                        "Sponsored Products", "Ad Group", "Create", campaignId, adGroupId, "", "", "", "",
+                                        "", adGroupId, "", "", "", "enabled", "", "", bid, "", "", "", "", "", "", "", ""
                                     ]);
                                     
                                     // 产品广告行
@@ -499,6 +468,3 @@ export const strategy1 = {
         }
     }
 };
-
-// 暴露到全局，供主页面调用
-window.strategy1 = strategy1;
