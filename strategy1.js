@@ -468,3 +468,6 @@ export const strategy1 = {
         }
     }
 };
+
+// 暴露到全局，供主页面调用
+window.strategy1 = strategy1;
