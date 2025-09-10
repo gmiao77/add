@@ -20,7 +20,7 @@ export const strategy1 = {
     getHtml() {
         return `
             <header class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">关键词广告批量创建</h2>
+                <h2 class="text-xl font-bold text-gray-800">Amazon关键词广告批量创建1.3</h2>
             </header>
 
             <form id="adForm" class="space-y-4">
@@ -330,88 +330,145 @@ export const strategy1 = {
                         groupedKeywords.forEach((group, gIdx) => {
                             const gSuffix = `A${gIdx + 1}`;
                             percentages.forEach(percent => {
-                                // 广告活动行
-                                const campaignId = `${inputs['广告活动名称']}_${gSuffix}_${bid}_${percent}_${suffix}`;
+                                // 广告活动ID和名称格式修正
+                                const campaignId = `${inputs['广告活动名称']}_${gSuffix}_${bid}_${suffix}`;
+                                
+                                // 广告活动行（修正列映射）
                                 rows.push([
-                                    "Sponsored Products", "Campaign", "Create", campaignId, "", "", "", "", "",
-                                    campaignId, "", today, "", "MANUAL", "enabled", inputs["预算"], 
-                                    "", "", "", "", "", "", "", inputs["竞价策略"], "", "", ""
+                                    "Sponsored Products", "Campaign", "Create", 
+                                    campaignId,  // Campaign ID
+                                    "", "", "", "", "", 
+                                    campaignId,  // Campaign Name
+                                    "", 
+                                    today,  // Start Date
+                                    "", 
+                                    "MANUAL",  // Targeting Type
+                                    "enabled",  // State
+                                    inputs["预算"],  // Daily Budget
+                                    "", "", "", "", "", "", "", "", 
+                                    inputs["竞价策略"],  // Bidding Strategy
+                                    "", "", ""
                                 ]);
                                 
-                                // 竞价调整行
+                                // 竞价调整行（修正列映射）
                                 if (inputs["竞价位置"]) {
                                     rows.push([
-                                        "Sponsored Products", "Bidding Adjustment", "Create", campaignId, "", "", "", "", "",
-                                        "", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                                        inputs["竞价策略"], inputs["竞价位置"], percent, ""
+                                        "Sponsored Products", "Bidding Adjustment", "Create", 
+                                        campaignId,  // Campaign ID
+                                        "", "", "", "", "", 
+                                        "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
+                                        inputs["竞价策略"],  // Bidding Strategy
+                                        inputs["竞价位置"],  // Placement
+                                        percent,  // Percentage
+                                        ""
                                     ]);
                                 }
                                 
-                                // 广告组行
-                                const adGroupId = `${inputs['广告组名称']}_${gSuffix}_${bid}_${percent}_${suffix}`;
+                                // 广告组ID格式修正
+                                const adGroupId = `${inputs['广告组名称']}_${gSuffix}_${bid}_${suffix}`;
+                                
+                                // 广告组行（修正列映射）
                                 rows.push([
-                                    "Sponsored Products", "Ad Group", "Create", campaignId, adGroupId, "", "", "", "",
-                                    "", adGroupId, "", "", "", "enabled", "", "", bid, "", "", "", "", "", "", "", ""
+                                    "Sponsored Products", "Ad Group", "Create", 
+                                    campaignId,  // Campaign ID
+                                    adGroupId,  // Ad Group ID
+                                    "", "", "", "", 
+                                    "", 
+                                    adGroupId,  // Ad Group Name
+                                    "", "", "", "", 
+                                    "enabled",  // State
+                                    "", "", 
+                                    bid,  // Ad Group Default Bid
+                                    "", "", "", "", "", "", "", "", ""
                                 ]);
                                 
-                                // 产品广告行
+                                // 产品广告行（修正列映射）
                                 skus.forEach(sku => {
                                     rows.push([
-                                        "Sponsored Products", "Product Ad", "Create", campaignId, adGroupId, "", "", "", "",
-                                        "", "", "", "", "", "enabled", "", sku, "", "", "", "", "", "", "", "", ""
+                                        "Sponsored Products", "Product Ad", "Create", 
+                                        campaignId,  // Campaign ID
+                                        adGroupId,  // Ad Group ID
+                                        "", "", "", "", 
+                                        "", "", "", "", "", 
+                                        "enabled",  // State
+                                        "", 
+                                        sku,  // SKU
+                                        "", "", "", "", "", "", "", "", ""
                                     ]);
                                 });
                                 
-                                // 关键词行
+                                // 关键词行（修正列映射）
                                 group.forEach(keyword => {
                                     rows.push([
-                                        "Sponsored Products", "Keyword", "Create", campaignId, adGroupId, "", "", "", "",
-                                        "", "", "", "", "", "enabled", "", "", "", bid, keyword, "", "", 
-                                        inputs["匹配类型"], "", "", ""
+                                        "Sponsored Products", "Keyword", "Create", 
+                                        campaignId,  // Campaign ID
+                                        adGroupId,  // Ad Group ID
+                                        "", "", "", "", 
+                                        "", "", "", "", "", 
+                                        "enabled",  // State
+                                        "", "", "", 
+                                        bid,  // Bid
+                                        keyword,  // Keyword Text
+                                        "", "", 
+                                        inputs["匹配类型"],  // Match Type
+                                        "", "", ""
                                     ]);
                                 });
                             });
                         });
                     });
                 } else {
-                    // 每个SKU独立活动（略，与原逻辑一致）
+                    // 每个SKU独立活动（保持原有逻辑，仅修正列映射）
                     skus.forEach(sku => {
                         bids.forEach(bid => {
                             groupedKeywords.forEach((group, gIdx) => {
                                 const gSuffix = `A${gIdx + 1}`;
-                                const adGroupId = `${inputs['广告活动名称']}_${sku}_${gSuffix}_${bid}_${suffix}`;
-                                
                                 percentages.forEach(percent => {
                                     // 广告活动行
                                     const campaignId = `${inputs['广告活动名称']}_${sku}_${gSuffix}_${bid}_${percent}_${suffix}`;
                                     rows.push([
-                                        "Sponsored Products", "Campaign", "Create", campaignId, "", "", "", "", "",
-                                        campaignId, "", today, "", "MANUAL", "enabled", inputs["预算"], 
-                                        "", "", "", "", "", "", "", inputs["竞价策略"], "", "", ""
+                                        "Sponsored Products", "Campaign", "Create", 
+                                        campaignId, "", "", "", "", "", 
+                                        campaignId, "", today, "", "MANUAL", "enabled", 
+                                        inputs["预算"], "", "", "", "", "", "", "", 
+                                        inputs["竞价策略"], "", "", ""
                                     ]);
-                    
-                                    // 广告组行
-                                    rows.push([
-                                        "Sponsored Products", "Ad Group", "Create", adGroupId, "", campaignId, "", "", "",
-                                        adGroupId, sku, "", "", "", "enabled", "", bid, "", "", "", "", "", "", "", "", ""
-                                    ]);
-                    
-                                    // 关键词行（遍历分组关键词）
-                                    group.forEach(keyword => {
-                                        const adjustedBid = (parseFloat(bid) * (percent / 100)).toFixed(2);
+                                    
+                                    // 竞价调整行
+                                    if (inputs["竞价位置"]) {
                                         rows.push([
-                                            "Sponsored Products", "Keyword", "Create", `${adGroupId}_${keyword}`, keyword,
-                                            adGroupId, campaignId, "Broad", "enabled", adjustedBid, "", "", "", "", "", "", "", "",
-                                            "", "", "", "", "", "", "", ""
+                                            "Sponsored Products", "Bidding Adjustment", "Create", 
+                                            campaignId, "", "", "", "", "", 
+                                            "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
+                                            inputs["竞价策略"], inputs["竞价位置"], percent, ""
+                                        ]);
+                                    }
+                                    
+                                    // 广告组行
+                                    const adGroupId = `${inputs['广告组名称']}_${sku}_${gSuffix}_${bid}_${percent}_${suffix}`;
+                                    rows.push([
+                                        "Sponsored Products", "Ad Group", "Create", 
+                                        campaignId, adGroupId, "", "", "", "", 
+                                        "", adGroupId, "", "", "", "enabled", 
+                                        "", "", bid, "", "", "", "", "", "", "", ""
+                                    ]);
+                                    
+                                    // 产品广告行
+                                    rows.push([
+                                        "Sponsored Products", "Product Ad", "Create", 
+                                        campaignId, adGroupId, "", "", "", "", 
+                                        "", "", "", "", "", "enabled", "", sku, "", "", "", "", "", "", "", "", ""
+                                    ]);
+                                    
+                                    // 关键词行
+                                    group.forEach(keyword => {
+                                        rows.push([
+                                            "Sponsored Products", "Keyword", "Create", 
+                                            campaignId, adGroupId, "", "", "", "", 
+                                            "", "", "", "", "", "enabled", "", "", "", 
+                                            bid, keyword, "", "", inputs["匹配类型"], "", "", ""
                                         ]);
                                     });
-                    
-                                    // 商品推广行
-                                    rows.push([
-                                        "Sponsored Products", "Product Ad", "Create", `${adGroupId}_product_${sku}`,
-                                        sku, adGroupId, campaignId, "enabled", "", "", "", "", "", "", "", "", "", "", "", "", "",
-                                        "", "", "", "", ""
-                                    ]);
                                 });
                             });
                         });
@@ -419,24 +476,24 @@ export const strategy1 = {
                 }
             }
             
-            // 生成并下载CSV
-            const csvContent = rows.map(row => 
-                row.map(cell => cell.includes(',') || cell.includes('"') 
-                    ? `"${cell.replace(/"/g, '""')}"` 
-                    : cell
-                ).join(',')
-            ).join('\n');
+            // 生成CSV文件并下载
+            const csvContent = rows.map(row => row.map(cell => {
+                // 处理包含逗号的单元格
+                if (cell && cell.includes(',')) return `"${cell}"`;
+                return cell;
+            }).join(',')).join('\n');
             
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Amazon广告模板_${Date.now()}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `Amazon广告批量上传模板_${new Date().getTime()}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
             
-            this.showStatus(`模板生成成功，共 ${rows.length - 1} 行数据`, 'success');
+            this.showStatus('模板生成成功，已开始下载', 'success');
         } catch (error) {
             this.showStatus(`生成失败: ${error.message}`, 'error');
         }
@@ -445,4 +502,3 @@ export const strategy1 = {
 
 // 暴露到全局，供主页面调用
 window.strategy1 = strategy1;
-
