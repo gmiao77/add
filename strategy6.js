@@ -1,4 +1,4 @@
-// 策略6模块 - 常规自定义表格匹配批量创建
+// 策略6模块 - SBV匹配批量创建
 export const strategy6 = {
     // 存储关键词数据（包含完整信息）
     keywordsData: [],
@@ -22,7 +22,7 @@ export const strategy6 = {
     getHtml() {
         return `
             <header class="mb-6">
-                <h2 class="text-xl font-bold text-gray-800">自定义表格批量匹配</h2>
+                <h2 class="text-xl font-bold text-gray-800">SBV广告批量匹配</h2>
             </header>
 
             <form id="adForm" class="space-y-4">
@@ -53,7 +53,7 @@ export const strategy6 = {
                 <!-- 按钮组 -->
                 <div class="flex flex-col sm:flex-row gap-4 pt-4">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（必须包含：关键词,ASIN,BID,广告活动名称,广告组名称,预算,匹配类型,Video Asset IDs，可选：百分比,投放位置）</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（必须包含：关键词,ASIN,BID,广告活动名称,广告组名称,预算,Video Asset IDs,广告名称，可选：匹配类型,投放位置）</label>
                         <label class="flex items-center justify-center w-full">
                             <div class="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100" id="dropArea">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -70,7 +70,7 @@ export const strategy6 = {
                     <div class="flex-1 flex items-end">
                         <button type="button" id="generateBtn" 
                             class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            生成广告批量上传模板
+                            SBV广告批量上传模板
                         </button>
                     </div>
                 </div>
@@ -182,10 +182,10 @@ export const strategy6 = {
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 
-                // 验证必要字段（将SKU替换为ASIN）
+                // 验证必要字段（新增广告名称）
                 const requiredFields = [
                     '关键词', 'ASIN', 'BID', '广告活动名称', 
-                    '广告组名称', '预算', '匹配类型', 'Video Asset IDs'
+                    '广告组名称', '预算', '匹配类型', 'Video Asset IDs', '广告名称'
                 ];
                 if (jsonData.length === 0) {
                     throw new Error('Excel文件中没有数据');
@@ -209,16 +209,17 @@ export const strategy6 = {
                     this.showStatus(`检测到表格中包含投放位置列`, 'info');
                 }
                 
-                // 存储完整数据（使用ASIN替换SKU）
+                // 存储完整数据（新增广告名称）
                 this.keywordsData = jsonData.filter(row => 
                     row.关键词 && row.ASIN && row.BID && row.广告活动名称 && 
-                    row.广告组名称 && row.预算 && row.匹配类型 && row['Video Asset IDs']
+                    row.广告组名称 && row.预算 && row.匹配类型 && row['Video Asset IDs'] && row['广告名称']
                 ).map(row => ({
                     ...row,
                     百分比: hasPercentage ? (row.百分比 || row.百分比 === 0 ? row.百分比.toString().trim() : "") : "",
                     hasPlacement: hasPlacement,
                     投放位置: hasPlacement ? (row.投放位置 ? row.投放位置.trim() : "") : "",
-                    videoAssetId: row['Video Asset IDs'] ? row['Video Asset IDs'].toString().trim() : ""
+                    videoAssetId: row['Video Asset IDs'] ? row['Video Asset IDs'].toString().trim() : "",
+                    adName: row['广告名称'] ? row['广告名称'].trim() : "" // 存储广告名称
                 }));
                 
                 if (this.keywordsData.length === 0) {
@@ -273,15 +274,16 @@ export const strategy6 = {
             // 数据结构设计：支持百分比和投放位置为空
             const campaignStructure = {};
             
-            // 第一步：构建完整的广告活动结构（使用ASIN替换SKU）
+            // 第一步：构建完整的广告活动结构（新增广告名称存储）
             this.keywordsData.forEach(item => {
                 const campaignName = item["广告活动名称"].trim();
                 const adGroupName = item["广告组名称"].trim();
-                const asin = item["ASIN"].trim(); // 从SKU改为ASIN
+                const asin = item["ASIN"].trim();
                 const bid = item["BID"].toString().trim();
                 const keywordText = item["关键词"].trim();
                 const budget = item["预算"].toString().trim();
-                const videoAssetId = item.videoAssetId; // 获取视频资产ID
+                const videoAssetId = item.videoAssetId;
+                const adName = item.adName; // 获取广告名称
                 
                 // 从表格获取所有配置，支持空值
                 const percentage = item["百分比"] || "";
@@ -307,7 +309,7 @@ export const strategy6 = {
                 
                 const campaign = campaignStructure[campaignId];
                 
-                // 仅当百分比或投放位置有实际值时才添加组合
+                // 添加位置竞价组合
                 if (percentage || placement) {
                     const combinationKey = `${percentage}|${placement}`;
                     campaign.placementCombinations.add(combinationKey);
@@ -319,16 +321,20 @@ export const strategy6 = {
                         id: adGroupId,
                         name: adGroupName,
                         adId: adId,
-                        productAds: new Map(), // 存储ASIN和对应的视频ID
+                        // 存储ASIN、视频ID和广告名称的映射
+                        productAds: new Map(), 
                         keywords: new Map()
                     };
                 }
                 
                 const adGroup = campaign.adGroups[adGroupId];
                 
-                // 添加产品广告（存储ASIN和对应的视频ID）
+                // 添加产品广告（存储ASIN、视频ID和广告名称）
                 if (!adGroup.productAds.has(asin)) {
-                    adGroup.productAds.set(asin, videoAssetId);
+                    adGroup.productAds.set(asin, {
+                        videoAssetId: videoAssetId,
+                        adName: adName
+                    });
                 }
                 
                 // 添加关键词（去重）
@@ -372,12 +378,14 @@ export const strategy6 = {
                         "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
                     ]);
                     
-                    // 3.2 视频广告行 - 使用ASIN和对应的视频ID
-                    Array.from(adGroup.productAds.entries()).forEach(([ASIN, videoAssetId]) => {
+                    // 3.2 视频广告行 - 使用导入的广告名称作为Ad Name
+                    Array.from(adGroup.productAds.entries()).forEach(([ASIN, adInfo]) => {
                         rows.push([
                             "Sponsored Brands", "Video Ad", "Create", campaign.id, "", adGroup.id, 
-                            adGroup.adId, "", "", "", "", adGroup.name, "", "", "enabled", "", "", "", 
-                            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ASIN, videoAssetId, ""
+                            adGroup.adId, "", "", "", "", adInfo.adName, // 填充Ad Name列
+                            "", "", "enabled", "", "", "", 
+                            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
+                            ASIN, adInfo.videoAssetId, ""
                         ]);
                     });
                     
