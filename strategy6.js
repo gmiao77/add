@@ -70,7 +70,7 @@ export const strategy6 = {
                     <div class="flex-1 flex items-end">
                         <button type="button" id="generateBtn" 
                             class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            生成广告批量上传模板
+                            SBV广告批量上传模板
                         </button>
                     </div>
                 </div>
