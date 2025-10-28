@@ -326,8 +326,8 @@ export const strategy6 = {
                 const adGroup = campaign.adGroups[adGroupId];
                 
                 // 添加产品广告
-                if (!adGroup.productAds.has(sku)) {
-                    adGroup.productAds.set(sku, videoAssetId);
+                if (!adGroup.productAds.has(ASIN)) {
+                    adGroup.productAds.set(ASIN, videoAssetId);
                 }
                 
                 // 添加关键词（去重）
@@ -416,4 +416,5 @@ export const strategy6 = {
     }
 };
 
+// 暴露到全局，供主页面调用
 window.strategy6 = strategy6;
