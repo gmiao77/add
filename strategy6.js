@@ -70,7 +70,7 @@ export const strategy6 = {
                     <div class="flex-1 flex items-end">
                         <button type="button" id="generateBtn" 
                             class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            SBV广告批量上传模板
+                            生成广告批量上传模板
                         </button>
                     </div>
                 </div>
@@ -185,7 +185,7 @@ export const strategy6 = {
                 // 验证必要字段（移除了竞价策略）
                 const requiredFields = [
                     '关键词', 'ASIN', 'BID', '广告活动名称', 
-                    '广告组名称', '预算', '匹配类型'
+                    '广告组名称', '预算', '匹配类型', 'Video Asset IDs'
                 ];
                 if (jsonData.length === 0) {
                     throw new Error('Excel文件中没有数据');
@@ -212,12 +212,13 @@ export const strategy6 = {
                 // 存储完整数据，支持百分比和投放位置为空
                 this.keywordsData = jsonData.filter(row => 
                     row.关键词 && row.ASIN && row.BID && row.广告活动名称 && 
-                    row.广告组名称 && row.预算 && row.匹配类型
+                    row.广告组名称 && row.预算 && row.匹配类型 && row['Video Asset IDs']
                 ).map(row => ({
                     ...row,
                     百分比: hasPercentage ? (row.百分比 || row.百分比 === 0 ? row.百分比.toString().trim() : "") : "",
                     hasPlacement: hasPlacement,
-                    投放位置: hasPlacement ? (row.投放位置 ? row.投放位置.trim() : "") : ""
+                    投放位置: hasPlacement ? (row.投放位置 ? row.投放位置.trim() : "") : "",
+                    videoAssetId: row['Video Asset IDs'] ? row['Video Asset IDs'].toString().trim() : ""
                 }));
                 
                 if (this.keywordsData.length === 0) {
@@ -280,11 +281,11 @@ export const strategy6 = {
                 const bid = item["BID"].toString().trim();
                 const keywordText = item["关键词"].trim();
                 const budget = item["预算"].toString().trim();
+                const videoAssetId = item.videoAssetId; 
                 
                 // 从表格获取所有配置，支持空值
                 const percentage = item["百分比"] || "";
                 const matchType = item["匹配类型"].trim();
-                // 投放位置使用新值：Home, Detail Page, Other
                 const placement = item["投放位置"] || "";
                 
                 const campaignId = `SBV-${campaignName.replace(/\s+/g, '_')}`;
@@ -298,7 +299,6 @@ export const strategy6 = {
                         id: campaignId,
                         name: campaignName,
                         budget: budget,
-                        // 只收集有实际值的百分比+Placement组合
                         placementCombinations: new Set(),
                         adGroups: {}
                     };
@@ -326,7 +326,9 @@ export const strategy6 = {
                 const adGroup = campaign.adGroups[adGroupId];
                 
                 // 添加产品广告
-                adGroup.productAds.add(ASIN);
+                if (!adGroup.productAds.has(sku)) {
+                    adGroup.productAds.set(sku, videoAssetId);
+                }
                 
                 // 添加关键词（去重）
                 if (!adGroup.keywords.has(keywordKey)) {
@@ -374,7 +376,7 @@ export const strategy6 = {
                         rows.push([
                             "Sponsored Brands", "Video Ad", "Create", campaign.id, "", adGroup.id, 
                             adGroup.adId, "", "", "", "", adGroup.name, "", "", "enabled", "", "", "", 
-                            "", "", "", "", "", "", "", "", "", "", "", ASIN, "", "", "", "", "", "", "", ""
+                            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ASIN, videoAssetId, ""
                         ]);
                     });
                     
@@ -414,5 +416,4 @@ export const strategy6 = {
     }
 };
 
-// 暴露到全局，供主页面调用
 window.strategy6 = strategy6;
