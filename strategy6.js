@@ -397,7 +397,7 @@ export const strategy6 = {
                     rows.push([
                         "Sponsored Brands", "Ad group", "Create", campaign.id, "", adGroup.id, 
                         adGroup.adId, "", "", "", adGroup.name, "", "", "", "enabled", 
-                        "", "", "", "", ""
+                        "", "", "", "", "", 
                         "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
                     ]);
                     
@@ -407,7 +407,7 @@ export const strategy6 = {
                             "Sponsored Brands", "Video Ad", "Create", campaign.id, "", adGroup.id, 
                             adGroup.adId, "", "", "", "", adInfo.adName, 
                             "", "", "enabled", "", 
-                            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
+                            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
                             "", "", "", ASIN, adInfo.videoAssetId, ""
                         ]);
                     });
