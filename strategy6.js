@@ -311,7 +311,7 @@ export const strategy6 = {
                 // 生成广告活动ID
                 const campaignId = `SBV-${campaignName.replace(/\s+/g, '_')}`;
                 const adGroupId = `${campaignId}-${adGroupName.replace(/\s+/g, '_')}`;
-                const adId = `${adGroupId}-AD`;
+                const adId = `${adGroupId}`;
                 const keywordKey = `${adGroupId}_${keywordText}_${matchType}`;
                 
                 // 初始化广告活动
@@ -408,7 +408,7 @@ export const strategy6 = {
                             adGroup.adId, "", "", "", "", adInfo.adName, 
                             "", "", "enabled", "", 
                             "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
-                            ASIN, adInfo.videoAssetId, ""
+                            "", "",ASIN, adInfo.videoAssetId, ""
                         ]);
                     });
                     
