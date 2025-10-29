@@ -386,7 +386,7 @@ export const strategy6 = {
                             campaign.id, "", "", "", "", "", "", "", "", "", "", "enabled", 
                             "", 
                             "", "", "", "", "", placement, percentage, "", "", "", "", "", "", "", 
-                            "", "", "", "", "", "", "", "", ""
+                            "", "", "", "", "", "", "", "", "", ""
                         ]);
                     });
                 }
@@ -397,7 +397,7 @@ export const strategy6 = {
                     rows.push([
                         "Sponsored Brands", "Ad group", "Create", campaign.id, "", adGroup.id, 
                         adGroup.adId, "", "", "", adGroup.name, "", "", "", "enabled", 
-                        "", 
+                        "", "", "", "", ""
                         "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
                     ]);
                     
@@ -422,7 +422,7 @@ export const strategy6 = {
                             adGroup.adId, "", "", "", "", "", "", "", "enabled", 
                             "", 
                             "", "", "", "", keyword.bid, "", "", escapedKeyword, keyword.matchType, "", "", "", 
-                            "", "", "", "", "", "", "", "", "", ""
+                            "", "", "", "", "", "", "", "", "", "", "", ""
                         ]);
                     });
                 });
