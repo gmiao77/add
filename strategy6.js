@@ -408,7 +408,7 @@ export const strategy6 = {
                             adGroup.adId, "", "", "", "", adInfo.adName, 
                             "", "", "enabled", "", 
                             "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
-                            "", "",ASIN, adInfo.videoAssetId, ""
+                            "", "", "", ASIN, adInfo.videoAssetId, ""
                         ]);
                     });
                     
