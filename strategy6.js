@@ -1,4 +1,4 @@
-// 策略6模块 - SBV广告批量创建
+// 策略6模块 - SBV批量创建
 export const strategy6 = {
     // 存储关键词数据（包含完整信息）
     keywordsData: [],
@@ -53,7 +53,7 @@ export const strategy6 = {
                 <!-- 按钮组 -->
                 <div class="flex flex-col sm:flex-row gap-4 pt-4">
                     <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（必须包含：关键词,ASIN,BID,广告活动名称,广告组名称,预算,匹配类型,Video Asset IDs,广告名称 注意：广告组合名称可以留空，如果填写则所有广告活动都会放在一个组合里）</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">导入数据（必须包含：关键词,ASIN,BID,广告活动名称,广告组名称,预算,匹配类型,Video Asset IDs,广告名称,品牌id，可选：百分比,投放位置,广告组合名称）</label>
                         <label class="flex items-center justify-center w-full">
                             <div class="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100" id="dropArea">
                                 <div class="flex flex-col items-center justify-center pt-5 pb-6">
@@ -182,10 +182,10 @@ export const strategy6 = {
                 const worksheet = workbook.Sheets[firstSheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
                 
-                // 验证必要字段
+                // 验证必要字段（新增品牌id）
                 const requiredFields = [
                     '关键词', 'ASIN', 'BID', '广告活动名称', 
-                    '广告组名称', '预算', '匹配类型', 'Video Asset IDs', '广告名称'
+                    '广告组名称', '预算', '匹配类型', 'Video Asset IDs', '广告名称', '品牌id'
                 ];
                 if (jsonData.length === 0) {
                     throw new Error('Excel文件中没有数据');
@@ -201,7 +201,7 @@ export const strategy6 = {
                 // 检查可选列
                 const hasPercentage = '百分比' in firstRow;
                 const hasPlacement = '投放位置' in firstRow;
-                const hasPortfolio = '广告组合名称' in firstRow; // 检查是否有广告组合名称列
+                const hasPortfolio = '广告组合名称' in firstRow;
                 
                 if (hasPercentage) {
                     this.showStatus(`检测到表格中包含百分比列`, 'info');
@@ -213,10 +213,11 @@ export const strategy6 = {
                     this.showStatus(`检测到表格中包含广告组合名称列`, 'info');
                 }
                 
-                // 存储完整数据（新增广告组合名称）
+                // 存储完整数据（包含带+号的关键词和品牌id）
                 this.keywordsData = jsonData.filter(row => 
                     row.关键词 && row.ASIN && row.BID && row.广告活动名称 && 
-                    row.广告组名称 && row.预算 && row.匹配类型 && row['Video Asset IDs'] && row['广告名称']
+                    row.广告组名称 && row.预算 && row.匹配类型 && row['Video Asset IDs'] && 
+                    row['广告名称'] && row['品牌id']
                 ).map(row => ({
                     ...row,
                     百分比: hasPercentage ? (row.百分比 || row.百分比 === 0 ? row.百分比.toString().trim() : "") : "",
@@ -224,7 +225,8 @@ export const strategy6 = {
                     投放位置: hasPlacement ? (row.投放位置 ? row.投放位置.trim() : "") : "",
                     videoAssetId: row['Video Asset IDs'] ? row['Video Asset IDs'].toString().trim() : "",
                     adName: row['广告名称'] ? row['广告名称'].trim() : "",
-                    portfolioName: hasPortfolio ? (row['广告组合名称'] ? row['广告组合名称'].trim() : "") : "" // 存储广告组合名称（可选）
+                    portfolioName: hasPortfolio ? (row['广告组合名称'] ? row['广告组合名称'].trim() : "") : "",
+                    brandEntityId: row['品牌id'] ? row['品牌id'].toString().trim() : "" // 存储品牌id
                 }));
                 
                 if (this.keywordsData.length === 0) {
@@ -276,20 +278,21 @@ export const strategy6 = {
             ];
             const rows = [header];
             
-            // 数据结构设计：支持广告组合名称
+            // 数据结构设计：保留带+号的关键词作为不同关键词
             const campaignStructure = {};
             
-            // 第一步：构建完整的广告活动结构（新增广告组合名称）
+            // 第一步：构建完整的广告活动结构
             this.keywordsData.forEach(item => {
                 const campaignName = item["广告活动名称"].trim();
                 const adGroupName = item["广告组名称"].trim();
                 const asin = item["ASIN"].trim();
                 const bid = item["BID"].toString().trim();
-                const keywordText = item["关键词"].trim();
+                const keywordText = item["关键词"].trim(); // 保留原始关键词（包含+号）
                 const budget = item["预算"].toString().trim();
                 const videoAssetId = item.videoAssetId;
                 const adName = item.adName;
-                const portfolioName = item.portfolioName; // 获取广告组合名称（可能为空）
+                const portfolioName = item.portfolioName;
+                const brandEntityId = item.brandEntityId; // 获取品牌id
                 
                 // 从表格获取所有配置
                 const percentage = item["百分比"] || "";
@@ -300,15 +303,17 @@ export const strategy6 = {
                 const campaignId = `SBV-${campaignName.replace(/\s+/g, '_')}`;
                 const adGroupId = `${campaignId}-${adGroupName.replace(/\s+/g, '_')}`;
                 const adId = `${adGroupId}-AD`;
+                // 使用原始关键词（含+号）生成去重键，确保"+baby pillow"和"baby pillow"视为不同关键词
                 const keywordKey = `${adGroupId}_${keywordText}_${matchType}`;
                 
-                // 初始化广告活动（存储广告组合名称）
+                // 初始化广告活动（包含品牌id）
                 if (!campaignStructure[campaignId]) {
                     campaignStructure[campaignId] = {
                         id: campaignId,
                         name: campaignName,
                         budget: budget,
-                        portfolioName: portfolioName, // 存储广告组合名称
+                        portfolioName: portfolioName,
+                        brandEntityId: brandEntityId, // 存储品牌id
                         placementCombinations: new Set(),
                         adGroups: {}
                     };
@@ -343,10 +348,10 @@ export const strategy6 = {
                     });
                 }
                 
-                // 添加关键词（去重）
+                // 添加关键词（使用原始带+号的关键词进行去重）
                 if (!adGroup.keywords.has(keywordKey)) {
                     adGroup.keywords.set(keywordKey, {
-                        text: keywordText,
+                        text: keywordText, // 保留带+号的关键词
                         bid: bid,
                         matchType: matchType
                     });
@@ -355,11 +360,11 @@ export const strategy6 = {
             
             // 第二步：生成CSV行
             Object.values(campaignStructure).forEach(campaign => {
-                // 1. 广告活动行 - 将广告组合名称填入Portfolio ID字段
+                // 1. 广告活动行 - 填充Brand Entity ID字段
                 rows.push([
                     "Sponsored Brands", "Campaign", "Create", campaign.id, 
-                    campaign.portfolioName,
-                    "", "", "", "", campaign.name, "", "", today, "", "enabled", "", 
+                    campaign.portfolioName, "", "", "", "", campaign.name, "", "", today, "", "enabled", 
+                    campaign.brandEntityId, // 填充品牌id到Brand Entity ID字段
                     "Daily", campaign.budget, "FALSE", "", "", "", "", "", "", "", "", "", "", 
                     "", "", "", "", "", "", "", "", "", "", ""
                 ]);
@@ -370,7 +375,8 @@ export const strategy6 = {
                         const [percentage, placement] = combinationKey.split('|');
                         rows.push([
                             "Sponsored Brands", "Bidding adjustment by placement", "Create", 
-                            campaign.id, "", "", "", "", "", "", "", "", "", "", "enabled", "", 
+                            campaign.id, "", "", "", "", "", "", "", "", "", "", "enabled", 
+                            campaign.brandEntityId, // 竞价调整行也填充品牌id
                             "", "", "", "", "", placement, percentage, "", "", "", "", "", "", "", 
                             "", "", "", "", "", "", "", "", ""
                         ]);
@@ -382,7 +388,8 @@ export const strategy6 = {
                     // 3.1 广告组行
                     rows.push([
                         "Sponsored Brands", "Ad group", "Create", campaign.id, "", adGroup.id, 
-                        adGroup.adId, "", "", "", adGroup.name, "", "", "", "enabled", "", "", "", 
+                        adGroup.adId, "", "", "", adGroup.name, "", "", "", "enabled", 
+                        campaign.brandEntityId, // 广告组行填充品牌id
                         "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
                     ]);
                     
@@ -391,30 +398,35 @@ export const strategy6 = {
                         rows.push([
                             "Sponsored Brands", "Video Ad", "Create", campaign.id, "", adGroup.id, 
                             adGroup.adId, "", "", "", "", adInfo.adName, 
-                            "", "", "enabled", "", "", "", 
+                            "", "", "enabled", campaign.brandEntityId, // 视频广告行填充品牌id
                             "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
                             ASIN, adInfo.videoAssetId, ""
                         ]);
                     });
                     
-                    // 3.3 关键词行
+                    // 3.3 关键词行 - 保留带+号的关键词
                     Array.from(adGroup.keywords.values()).forEach(keyword => {
                         rows.push([
                             "Sponsored Brands", "Keyword", "Create", campaign.id, "", adGroup.id, 
-                            adGroup.adId, "", "", "", "", "", "", "", "enabled", "", "", "", "", 
-                            "", keyword.bid, "", "", keyword.text, keyword.matchType, "", "", "", 
-                            "", "", "", "", "", "", "", "", "", "", ""
+                            adGroup.adId, "", "", "", "", "", "", "", "enabled", 
+                            campaign.brandEntityId, // 关键词行填充品牌id
+                            "", "", "", "", keyword.bid, "", "", keyword.text, keyword.matchType, "", "", "", 
+                            "", "", "", "", "", "", "", "", "", ""
                         ]);
                     });
                 });
             });
             
-            // 生成并下载CSV
+            // 生成并下载CSV，确保特殊字符正确处理
             const csvContent = rows.map(row => 
-                row.map(cell => cell.includes(',') || cell.includes('"') 
-                    ? `"${cell.replace(/"/g, '""')}"` 
-                    : cell
-                ).join(',')
+                row.map(cell => {
+                    // 处理包含逗号、引号或+号的单元格，统一用双引号包裹
+                    if (cell.includes(',') || cell.includes('"') || cell.includes('+')) {
+                        // 替换双引号为两个双引号（CSV转义规则）
+                        return `"${cell.replace(/"/g, '""')}"`;
+                    }
+                    return cell;
+                }).join(',')
             ).join('\n');
             
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -433,5 +445,5 @@ export const strategy6 = {
     }
 };
 
-
+// 暴露到全局，供主页面调用
 window.strategy6 = strategy6;
