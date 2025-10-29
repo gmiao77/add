@@ -302,7 +302,7 @@ export const strategy6 = {
                 // 生成广告活动ID
                 const campaignId = `SBV-${campaignName.replace(/\s+/g, '_')}`;
                 const adGroupId = `${campaignId}-${adGroupName.replace(/\s+/g, '_')}`;
-                const adId = `${adGroupId}-AD`;
+                const adId = `${adGroupId}`;
                 // 使用原始关键词（含+号）生成去重键，确保"+baby pillow"和"baby pillow"视为不同关键词
                 const keywordKey = `${adGroupId}_${keywordText}_${matchType}`;
                 
@@ -351,7 +351,7 @@ export const strategy6 = {
                 // 添加关键词（使用原始带+号的关键词进行去重）
                 if (!adGroup.keywords.has(keywordKey)) {
                     adGroup.keywords.set(keywordKey, {
-                        text: keywordText, // 保留带+号的关键词
+                        text: keywordText, 
                         bid: bid,
                         matchType: matchType
                     });
@@ -364,7 +364,7 @@ export const strategy6 = {
                 rows.push([
                     "Sponsored Brands", "Campaign", "Create", campaign.id, 
                     campaign.portfolioName, "", "", "", "", campaign.name, "", "", today, "", "enabled", 
-                    campaign.brandEntityId, // 填充品牌id到Brand Entity ID字段
+                    campaign.brandEntityId, 
                     "Daily", campaign.budget, "FALSE", "", "", "", "", "", "", "", "", "", "", 
                     "", "", "", "", "", "", "", "", "", "", ""
                 ]);
@@ -375,8 +375,7 @@ export const strategy6 = {
                         const [percentage, placement] = combinationKey.split('|');
                         rows.push([
                             "Sponsored Brands", "Bidding adjustment by placement", "Create", 
-                            campaign.id, "", "", "", "", "", "", "", "", "", "", "enabled", 
-                            campaign.brandEntityId, // 竞价调整行也填充品牌id
+                            campaign.id, "", "", "", "", "", "", "", "", "", "", "enabled", "",
                             "", "", "", "", "", placement, percentage, "", "", "", "", "", "", "", 
                             "", "", "", "", "", "", "", "", ""
                         ]);
@@ -388,8 +387,7 @@ export const strategy6 = {
                     // 3.1 广告组行
                     rows.push([
                         "Sponsored Brands", "Ad group", "Create", campaign.id, "", adGroup.id, 
-                        adGroup.adId, "", "", "", adGroup.name, "", "", "", "enabled", 
-                        campaign.brandEntityId, // 广告组行填充品牌id
+                        adGroup.adId, "", "", "", adGroup.name, "", "", "", "enabled", "",
                         "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
                     ]);
                     
@@ -398,7 +396,7 @@ export const strategy6 = {
                         rows.push([
                             "Sponsored Brands", "Video Ad", "Create", campaign.id, "", adGroup.id, 
                             adGroup.adId, "", "", "", "", adInfo.adName, 
-                            "", "", "enabled", campaign.brandEntityId, // 视频广告行填充品牌id
+                            "", "", "enabled", "",
                             "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", 
                             ASIN, adInfo.videoAssetId, ""
                         ]);
@@ -408,8 +406,7 @@ export const strategy6 = {
                     Array.from(adGroup.keywords.values()).forEach(keyword => {
                         rows.push([
                             "Sponsored Brands", "Keyword", "Create", campaign.id, "", adGroup.id, 
-                            adGroup.adId, "", "", "", "", "", "", "", "enabled", 
-                            campaign.brandEntityId, // 关键词行填充品牌id
+                            adGroup.adId, "", "", "", "", "", "", "", "enabled", "",
                             "", "", "", "", keyword.bid, "", "", keyword.text, keyword.matchType, "", "", "", 
                             "", "", "", "", "", "", "", "", "", ""
                         ]);
