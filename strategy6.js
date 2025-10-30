@@ -26,6 +26,10 @@ export const strategy6 = {
             </header>
 
             <form id="adForm" class="space-y-4">
+                            <!-- 重要提示说明 -->
+                <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                    <p class="text-sm text-yellow-800"><i class="fa fa-info-circle mr-1"></i> 请注意：广告组合名称只有在更新模板的时候填，新建批量模板不可以填</p>
+                </div>
                 <!-- 输入字段组 - 仅作为表格中没有对应列时的备用选项 -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="space-y-2">
