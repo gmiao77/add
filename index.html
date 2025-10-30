@@ -231,12 +231,17 @@
             });
             
             if (error) {
-                showAuthMessage(`登录失败: ${error.message}`, true);
+                // 检查是否是邮箱未验证错误
+                if (error.message.includes('Email not confirmed')) {
+                    showAuthMessage('账号未激活，请联系管理员', true);
+                } else {
+                    // 其他错误保持原始提示
+                    showAuthMessage(`登录失败: ${error.message}`, true);
+                }
             } else {
                 // 登录成功会自动触发状态更新
             }
         }
-
         // 用户登出
         async function logout() {
             const { error } = await supabase.auth.signOut();
@@ -286,6 +291,7 @@
 </body>
 </html>
     
+
 
 
 
