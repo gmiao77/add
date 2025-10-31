@@ -115,7 +115,7 @@
                 // 处理查询错误或未找到用户资料的情况
                 if (profileError || !profile) {
                     await supabase.auth.signOut();
-                    showAuthMessage('您的账号正在等待管理员批准', true);
+                    showAuthMessage('您的账号体验已过期，请联系管理员激活', true);
                     return;
                 }
                 
