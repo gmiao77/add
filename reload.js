@@ -78,33 +78,31 @@
         }
 
         // 用户登录
+        // 用户登录函数
         async function login() {
             const email = emailInput.value;
             const password = passwordInput.value;
             
             if (!email || !password) {
-                showMessage('请输入邮箱和密码', true);
+                showAuthMessage('请输入邮箱和密码', true);
                 return;
             }
             
-            try {
-                // 1. 常规登录（会自动检查邮箱验证状态）
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email,
-                    password
-                });
-                
-                if (error) {
-                    // 处理邮箱未验证错误
-                    if (error.message.includes('Email not confirmed')) {
-                        showMessage('请先点击邮件中的链接验证您的邮箱', true);
-                        // 可以在这里添加"重新发送验证邮件"的功能入口
-                        return;
-                    }
-                    throw error;
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+            
+            if (error) {
+                // 检查是否是邮箱未验证错误
+                if (error.message.includes('Email not confirmed')) {
+                    showAuthMessage('账号未激活，请联系管理员', true);
+                } else {
+                    // 其他错误保持原始提示
+                    showAuthMessage(`登录失败: ${error.message}`, true);
                 }
-                
-                // 2. 登录成功后检查管理员批准状态
+            } else {
+                // 登录成功后检查管理员批准状态
                 const userId = data.session.user.id;
                 
                 // 查询用户的approved状态
@@ -114,50 +112,25 @@
                     .eq('id', userId)
                     .single();
                 
+                // 处理查询错误或未找到用户资料的情况
                 if (profileError || !profile) {
-                    // 如果没有用户资料记录，自动视为但提示需要等待批准
                     await supabase.auth.signOut();
-                    showMessage('您的账号正在等待管理员批准', true);
+                    showAuthMessage('您的账号正在等待管理员批准', true);
                     return;
                 }
                 
-                // 3. 根据批准状态处理
+                // 检查批准状态
                 if (!profile.approved) {
-                    // 未批准，登出但保留邮箱验证状态
                     await supabase.auth.signOut();
-                    showMessage('您的账号已验证，但尚未被管理员批准，请等待审核', true);
+                    showAuthMessage('您的账号已激活，但尚未被管理员批准，请等待审核', true);
                 } else {
-                    // 已批准，正常进入系统
-                    showMessage('登录成功，正在进入系统...', false);
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 1000);
+                    // 已批准，触发状态更新（假设checkUser()会处理后续页面跳转等）
+                    showAuthMessage('登录成功', false);
+                    checkUser();
                 }
-                
-            } catch (error) {
-                showMessage(`登录失败: ${error.message}`, true);
             }
         }
         
-        // 可选：重新发送验证邮件功能
-        async function resendVerificationEmail() {
-            const email = emailInput.value.trim();
-            if (!email) {
-                showMessage('请输入您的邮箱', true);
-                return;
-            }
-            
-            try {
-                const { error } = await supabase.auth.resendVerificationEmail({
-                    email
-                });
-                
-                if (error) throw error;
-                showMessage('验证邮件已重新发送，请查收', false);
-            } catch (error) {
-                showMessage(`发送失败: ${error.message}`, true);
-            }
-        }
         // 用户登出
         async function logout() {
             const { error } = await supabase.auth.signOut();
@@ -165,6 +138,7 @@
                 checkUser(); // 重新检查用户状态
             }
         }
+
 
         // 策略选择逻辑
         document.getElementById('strategySelector').addEventListener('change', function(e) {
