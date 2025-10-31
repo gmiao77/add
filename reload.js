@@ -1,1 +1,205 @@
-var _0xodv='jsjiami.com.v7';const _0x1238ee=_0x26e2;(function(_0x13e0e1,_0x294401,_0x1e3ce6,_0x72751c,_0xcfe20a,_0x263bb3,_0x4a18ab){return _0x13e0e1=_0x13e0e1>>0x1,_0x263bb3='hs',_0x4a18ab='hs',function(_0x315f6b,_0x3b58d8,_0xbbb2e2,_0x3be3df,_0x3ef0c2){const _0x4fb176=_0x26e2;_0x3be3df='tfi',_0x263bb3=_0x3be3df+_0x263bb3,_0x3ef0c2='up',_0x4a18ab+=_0x3ef0c2,_0x263bb3=_0xbbb2e2(_0x263bb3),_0x4a18ab=_0xbbb2e2(_0x4a18ab),_0xbbb2e2=0x0;const _0x5095c2=_0x315f6b();while(!![]&&--_0x72751c+_0x3b58d8){try{_0x3be3df=parseInt(_0x4fb176(0x1ab,'8uSQ'))/0x1*(-parseInt(_0x4fb176(0x1fa,'kQup'))/0x2)+-parseInt(_0x4fb176(0x1b4,'$&0)'))/0x3*(-parseInt(_0x4fb176(0x1e6,'CJy3'))/0x4)+parseInt(_0x4fb176(0x214,'0&K('))/0x5+parseInt(_0x4fb176(0x1dd,'JxVC'))/0x6+parseInt(_0x4fb176(0x1f4,'ViC6'))/0x7+parseInt(_0x4fb176(0x1c0,'b!Il'))/0x8+-parseInt(_0x4fb176(0x1f7,'vI!L'))/0x9;}catch(_0x9e173d){_0x3be3df=_0xbbb2e2;}finally{_0x3ef0c2=_0x5095c2[_0x263bb3]();if(_0x13e0e1<=_0x72751c)_0xbbb2e2?_0xcfe20a?_0x3be3df=_0x3ef0c2:_0xcfe20a=_0x3ef0c2:_0xbbb2e2=_0x3ef0c2;else{if(_0xbbb2e2==_0xcfe20a['replace'](/[kTRyVxMnWUbeLtQOfCp=]/g,'')){if(_0x3be3df===_0x3b58d8){_0x5095c2['un'+_0x263bb3](_0x3ef0c2);break;}_0x5095c2[_0x4a18ab](_0x3ef0c2);}}}}}(_0x1e3ce6,_0x294401,function(_0x3ec95d,_0x35d2b0,_0x374c6a,_0x348bd0,_0x3efcf1,_0x1e6e1b,_0x10da6a){return _0x35d2b0='\x73\x70\x6c\x69\x74',_0x3ec95d=arguments[0x0],_0x3ec95d=_0x3ec95d[_0x35d2b0](''),_0x374c6a='\x72\x65\x76\x65\x72\x73\x65',_0x3ec95d=_0x3ec95d[_0x374c6a]('\x76'),_0x348bd0='\x6a\x6f\x69\x6e',(0x1bfc9f,_0x3ec95d[_0x348bd0](''));});}(0x186,0x8af57,_0x1af9,0xc5),_0x1af9)&&(_0xodv=`\x3a1`);const supabaseUrl='https://dpvqswmhxkvdsqayhklf.supabase.co',supabaseKey='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwdnFzd21oeGt2ZHNxYXloa2xmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1Mjg3NjcsImV4cCI6MjA3MDEwNDc2N30.XZICsMMj63SCA86ZuNADz4xaoR2AfakSXttNzU0FxS0',supabase=window[_0x1238ee(0x204,'ZAx3')]['createClient'](supabaseUrl,supabaseKey),authForm=document[_0x1238ee(0x1b9,'b!Il')](_0x1238ee(0x1fb,'0&K(')),adSystem=document['getElementById'](_0x1238ee(0x1df,'5br9')),authStatus=document[_0x1238ee(0x224,'ZAx3')](_0x1238ee(0x20c,'SIQZ')),authMessage=document['getElementById']('authMessage'),emailInput=document[_0x1238ee(0x1eb,'rGln')](_0x1238ee(0x195,'t[Ai')),passwordInput=document[_0x1238ee(0x1be,'q086')](_0x1238ee(0x1ad,'qs13')),loginBtn=document['getElementById'](_0x1238ee(0x1d1,'g(1C')),registerBtn=document[_0x1238ee(0x1e4,'CJy3')](_0x1238ee(0x215,'8uSQ'));async function checkUser(){const _0x2adec9=_0x1238ee,_0x50884f={'OerJS':_0x2adec9(0x199,'$&0)'),'slwaM':_0x2adec9(0x1b3,'0&K('),'RqSWw':_0x2adec9(0x1c7,'5br9'),'nkqZG':function(_0x1f0f19,_0x15a9ff){return _0x1f0f19(_0x15a9ff);},'DvEmr':function(_0x58251e,_0x44e7b4){return _0x58251e!==_0x44e7b4;},'uAiJL':'qstVr','ozVVS':function(_0x40abae){return _0x40abae();}},{data:{session:_0x6fafc6},error:_0x1c7102}=await supabase['auth'][_0x2adec9(0x1f0,'rGln')]();_0x6fafc6?_0x50884f['nkqZG'](showAdSystem,_0x6fafc6[_0x2adec9(0x200,'CJy3')]):_0x50884f[_0x2adec9(0x20e,'cPYJ')](_0x50884f[_0x2adec9(0x19a,'qs13')],_0x50884f[_0x2adec9(0x1fc,'ViC6')])?(_0x22273f['classList']['add'](_0x50884f['OerJS']),_0x40f619[_0x2adec9(0x1b2,'$&0)')]['remove'](_0x50884f[_0x2adec9(0x1de,'8uSQ')]),_0x3cfdd4['innerHTML']=_0x2adec9(0x1d3,'q086')+_0x49ebeb[_0x2adec9(0x1c5,'CJy3')]+_0x2adec9(0x1f8,'2E9s'),_0x42e3ca[_0x2adec9(0x1c4,'ViC6')](_0x50884f[_0x2adec9(0x223,'CZ49')])['addEventListener'](_0x50884f[_0x2adec9(0x1ac,']aNy')],_0x1d8269)):_0x50884f[_0x2adec9(0x20a,'!KgN')](showAuthForm);}function showAuthForm(){const _0x2469d6=_0x1238ee,_0xf1a54a={'dSoZN':'hidden'};authForm[_0x2469d6(0x1b2,'$&0)')][_0x2469d6(0x1d7,'$&0)')](_0xf1a54a['dSoZN']),adSystem['classList']['add'](_0xf1a54a[_0x2469d6(0x1dc,'5br9')]),authStatus[_0x2469d6(0x19c,'cPYJ')]='未登录';}function showAdSystem(_0x2b92a4){const _0x12794c=_0x1238ee,_0x247335={'kQKkS':_0x12794c(0x1e5,'rGln'),'BBKlr':'click'};authForm[_0x12794c(0x1e3,'Wy[6')]['add'](_0x247335[_0x12794c(0x19d,'ViC6')]),adSystem[_0x12794c(0x1c8,'IJX]')][_0x12794c(0x1ff,'oxpA')](_0x247335['kQKkS']),authStatus['innerHTML']=_0x12794c(0x21b,'t[Ai')+_0x2b92a4[_0x12794c(0x1e8,'2h5t')]+_0x12794c(0x1ae,'b!Il'),document[_0x12794c(0x206,'o]I[')]('logoutBtn')[_0x12794c(0x1db,'rGln')](_0x247335[_0x12794c(0x1bd,'q086')],logout);}function showAuthMessage(_0x446549,_0x3f42b6=![]){const _0x4e94df=_0x1238ee,_0x4863b5={'ekGyY':_0x4e94df(0x222,'kQup')};authMessage[_0x4e94df(0x1d2,']xrM')]=_0x446549,authMessage['className']='mt-4\x20text-sm\x20text-center\x20'+(_0x3f42b6?_0x4863b5[_0x4e94df(0x1ea,'2E9s')]:'text-green-600');}async function register(){const _0x3cdb26=_0x1238ee,_0x6a9dc7={'BqyDX':function(_0x13902c,_0x95664f){return _0x13902c||_0x95664f;},'wZqdQ':function(_0x2254ff,_0x377ad6,_0x5ee80d){return _0x2254ff(_0x377ad6,_0x5ee80d);},'lVpWk':function(_0x131d1d,_0x3c0505){return _0x131d1d===_0x3c0505;},'byYxh':_0x3cdb26(0x216,'!KgN')},_0x37b284=emailInput[_0x3cdb26(0x21d,'nAk[')],_0x694a3b=passwordInput[_0x3cdb26(0x1a0,'5IrY')];if(_0x6a9dc7['BqyDX'](!_0x37b284,!_0x694a3b)){_0x6a9dc7[_0x3cdb26(0x1a2,'97*l')](showAuthMessage,_0x3cdb26(0x1a1,'Yl[@'),!![]);return;}const {data:_0x572869,error:_0x19aae3}=await supabase['auth'][_0x3cdb26(0x1b1,'qs13')]({'email':_0x37b284,'password':_0x694a3b});if(_0x19aae3){if(_0x6a9dc7[_0x3cdb26(0x1b5,'8U&j')](_0x3cdb26(0x1f9,'vI!L'),_0x3cdb26(0x1fe,'IJX]'))){_0x44797b('登录失败:\x20'+_0x2a6ca6[_0x3cdb26(0x1da,'vI!L')],!![]);return;}else _0x6a9dc7['wZqdQ'](showAuthMessage,_0x3cdb26(0x1ca,'97*l')+_0x19aae3[_0x3cdb26(0x1da,'vI!L')],!![]);}else showAuthMessage(_0x6a9dc7[_0x3cdb26(0x208,'fXF7')]);}async function login(){const _0x772eeb=_0x1238ee,_0x41ae5c={'nzVoe':function(_0x5e9ea0,_0x1ee4b2){return _0x5e9ea0(_0x1ee4b2);},'WUuRH':_0x772eeb(0x1d9,'rGln'),'opHtV':function(_0x62f5dc,_0x54b858){return _0x62f5dc||_0x54b858;},'xWANy':function(_0x2a64d6,_0x5501e6,_0x5d0619){return _0x2a64d6(_0x5501e6,_0x5d0619);},'WgsYx':function(_0x36b0eb,_0x480480){return _0x36b0eb===_0x480480;},'szLvF':_0x772eeb(0x1ef,']aNy'),'fUkjj':function(_0x3f3fad,_0x160017,_0x10228f){return _0x3f3fad(_0x160017,_0x10228f);},'oNEnc':_0x772eeb(0x1ce,'5br9'),'DLjQa':_0x772eeb(0x219,'SIQZ'),'yvZBY':function(_0x17156e,_0x2dbda5){return _0x17156e!==_0x2dbda5;},'upLYH':_0x772eeb(0x1ba,'uJw]'),'ULqmw':_0x772eeb(0x21f,'$&0)'),'gdzMA':function(_0x15b169,_0x44d128,_0x37a6a2){return _0x15b169(_0x44d128,_0x37a6a2);},'pVZfk':_0x772eeb(0x1c3,'SIQZ'),'eSMrr':function(_0x5cce1e,_0x2df4fa,_0xabe3f2){return _0x5cce1e(_0x2df4fa,_0xabe3f2);},'DwMog':_0x772eeb(0x1d0,'zfye'),'yfRBz':function(_0x17f860,_0xe3956f){return _0x17f860!==_0xe3956f;},'NOONk':_0x772eeb(0x1cc,'5IrY'),'AtNuH':function(_0x2eda51,_0x4011aa,_0x10ca7c){return _0x2eda51(_0x4011aa,_0x10ca7c);},'ZXaCO':_0x772eeb(0x20f,'j7^9')},_0x3a9cda=emailInput[_0x772eeb(0x209,'s6]O')],_0x2b507b=passwordInput['value'];if(_0x41ae5c[_0x772eeb(0x1a9,']xrM')](!_0x3a9cda,!_0x2b507b)){_0x41ae5c[_0x772eeb(0x1e9,'8uSQ')](showAuthMessage,'请输入邮箱和密码',!![]);return;}const {data:_0x2067fd,error:_0x30610e}=await supabase['auth']['signInWithPassword']({'email':_0x3a9cda,'password':_0x2b507b});if(_0x30610e){if(_0x41ae5c['WgsYx'](_0x41ae5c[_0x772eeb(0x203,'ZAx3')],_0x41ae5c['szLvF'])){_0x41ae5c[_0x772eeb(0x194,'csLY')](showAuthMessage,_0x772eeb(0x1b8,'97*l')+_0x30610e[_0x772eeb(0x1e2,'CZ49')],!![]);return;}else _0x199d13();}const _0xc78386=_0x2067fd['session']['user']['id'],{data:_0x42e9f3,error:_0x305e17}=await supabase[_0x772eeb(0x211,'97*l')](_0x41ae5c[_0x772eeb(0x1f1,'8U&j')])['select'](_0x41ae5c[_0x772eeb(0x1f6,'70^h')])['eq']('id',_0xc78386)[_0x772eeb(0x1fd,'CJy3')]();if(_0x305e17){if(_0x41ae5c[_0x772eeb(0x1d6,'t[Ai')](_0x41ae5c[_0x772eeb(0x1a3,'ZAx3')],_0x41ae5c[_0x772eeb(0x1e7,'oxpA')])){await supabase[_0x772eeb(0x20d,'JxVC')][_0x772eeb(0x201,'3a1Q')](),_0x41ae5c[_0x772eeb(0x19b,'B7l(')](showAuthMessage,_0x41ae5c[_0x772eeb(0x1ec,'SIQZ')],!![]);return;}else{const _0x1ae6c1=_0x56f36d['target'][_0x772eeb(0x1c2,'kQup')],_0xafd1e0=_0x10c407['getElementById']('subpageContainer');_0xafd1e0[_0x772eeb(0x1c6,'uJw]')]='';if(_0x1ae6c1===_0x772eeb(0x19f,']xrM'))_0x41ae5c['nzVoe'](_0x14da8f,_0xafd1e0);else _0x1ae6c1?_0xafd1e0[_0x772eeb(0x1e1,'cPYJ')]=_0x772eeb(0x20b,'5IrY')+_0x1ae6c1+_0x772eeb(0x1f5,'0&K('):_0xafd1e0['innerHTML']=_0x772eeb(0x226,'CJy3');}}!_0x42e9f3['approved']?(await supabase[_0x772eeb(0x1d4,'Yl[@')][_0x772eeb(0x1a6,'oxpA')](),_0x41ae5c[_0x772eeb(0x1b0,'JxVC')](showAuthMessage,_0x41ae5c[_0x772eeb(0x1b6,'ZSvL')],!![])):_0x41ae5c[_0x772eeb(0x198,'k[Tn')](_0x41ae5c['NOONk'],_0x772eeb(0x1cb,'o]I['))?(_0x41ae5c[_0x772eeb(0x212,'k[Tn')](showAuthMessage,_0x41ae5c['ZXaCO'],![]),setTimeout(()=>{const _0x113001=_0x772eeb;window[_0x113001(0x1af,'70^h')]['href']=_0x41ae5c[_0x113001(0x1a7,'o]I[')];},0x3e8)):_0x41ae5c[_0x772eeb(0x1f3,'CZ49')](_0x5d120d,_0x274c83);}function _0x26e2(_0x1c6d76,_0x5615b9){const _0x1af9f7=_0x1af9();return _0x26e2=function(_0x26e274,_0x13688f){_0x26e274=_0x26e274-0x194;let _0x17b2b4=_0x1af9f7[_0x26e274];if(_0x26e2['eVMLZK']===undefined){var _0x475648=function(_0x3f27cd){const _0x54306e='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x5a6c8a='',_0xc45176='';for(let _0x8584c1=0x0,_0x2624c7,_0x2e751d,_0x3f2ff1=0x0;_0x2e751d=_0x3f27cd['charAt'](_0x3f2ff1++);~_0x2e751d&&(_0x2624c7=_0x8584c1%0x4?_0x2624c7*0x40+_0x2e751d:_0x2e751d,_0x8584c1++%0x4)?_0x5a6c8a+=String['fromCharCode'](0xff&_0x2624c7>>(-0x2*_0x8584c1&0x6)):0x0){_0x2e751d=_0x54306e['indexOf'](_0x2e751d);}for(let _0x16f1c9=0x0,_0x409381=_0x5a6c8a['length'];_0x16f1c9<_0x409381;_0x16f1c9++){_0xc45176+='%'+('00'+_0x5a6c8a['charCodeAt'](_0x16f1c9)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0xc45176);};const _0x319fd8=function(_0x3853da,_0x16313f){let _0x448c74=[],_0x28b411=0x0,_0x341280,_0x4dd0b8='';_0x3853da=_0x475648(_0x3853da);let _0x435ab4;for(_0x435ab4=0x0;_0x435ab4<0x100;_0x435ab4++){_0x448c74[_0x435ab4]=_0x435ab4;}for(_0x435ab4=0x0;_0x435ab4<0x100;_0x435ab4++){_0x28b411=(_0x28b411+_0x448c74[_0x435ab4]+_0x16313f['charCodeAt'](_0x435ab4%_0x16313f['length']))%0x100,_0x341280=_0x448c74[_0x435ab4],_0x448c74[_0x435ab4]=_0x448c74[_0x28b411],_0x448c74[_0x28b411]=_0x341280;}_0x435ab4=0x0,_0x28b411=0x0;for(let _0x22273f=0x0;_0x22273f<_0x3853da['length'];_0x22273f++){_0x435ab4=(_0x435ab4+0x1)%0x100,_0x28b411=(_0x28b411+_0x448c74[_0x435ab4])%0x100,_0x341280=_0x448c74[_0x435ab4],_0x448c74[_0x435ab4]=_0x448c74[_0x28b411],_0x448c74[_0x28b411]=_0x341280,_0x4dd0b8+=String['fromCharCode'](_0x3853da['charCodeAt'](_0x22273f)^_0x448c74[(_0x448c74[_0x435ab4]+_0x448c74[_0x28b411])%0x100]);}return _0x4dd0b8;};_0x26e2['WJKCEX']=_0x319fd8,_0x1c6d76=arguments,_0x26e2['eVMLZK']=!![];}const _0x38d0a5=_0x1af9f7[0x0],_0x15691e=_0x26e274+_0x38d0a5,_0x1591d4=_0x1c6d76[_0x15691e];return!_0x1591d4?(_0x26e2['SEaqDP']===undefined&&(_0x26e2['SEaqDP']=!![]),_0x17b2b4=_0x26e2['WJKCEX'](_0x17b2b4,_0x13688f),_0x1c6d76[_0x15691e]=_0x17b2b4):_0x17b2b4=_0x1591d4,_0x17b2b4;},_0x26e2(_0x1c6d76,_0x5615b9);}document['getElementById'](_0x1238ee(0x1a8,'t[Ai'))[_0x1238ee(0x217,'70^h')](_0x1238ee(0x207,'2h5t'),function(_0x17fdc0){const _0x114750=_0x1238ee,_0x5b2f9f={'YkVGB':_0x114750(0x1ee,'B7l('),'mdEfv':'subpageContainer','tbxHQ':function(_0x59a72c,_0x2df1f6){return _0x59a72c===_0x2df1f6;},'fvxlN':function(_0xe82aa,_0x80d131){return _0xe82aa(_0x80d131);},'JWPCl':function(_0x7da20c,_0x5b17f8){return _0x7da20c===_0x5b17f8;},'qzhQG':_0x114750(0x1f2,'q086'),'uxqrO':'NRHpV'},_0x158a6f=_0x17fdc0[_0x114750(0x205,'o]I[')][_0x114750(0x202,'2E9s')],_0x23f85e=document[_0x114750(0x1e4,'CJy3')](_0x5b2f9f[_0x114750(0x1bf,'g(1C')]);_0x23f85e['innerHTML']='';if(_0x5b2f9f[_0x114750(0x218,'l$3d')](_0x158a6f,_0x114750(0x1b7,'5br9')))_0x5b2f9f['fvxlN'](loadStrategy1,_0x23f85e);else _0x158a6f?_0x5b2f9f[_0x114750(0x1bc,'8U&j')](_0x5b2f9f['qzhQG'],_0x5b2f9f[_0x114750(0x196,'0&K(')])?_0x2760a2[_0x114750(0x220,'Ee9m')][_0x114750(0x1cd,'ZSvL')]=_0x5b2f9f[_0x114750(0x19e,'8uSQ')]:_0x23f85e['innerHTML']=_0x114750(0x21e,'8U&j')+_0x158a6f+_0x114750(0x1a4,'j7^9'):_0x23f85e[_0x114750(0x1d8,'j7^9')]=_0x114750(0x1e0,'s6]O');}),registerBtn[_0x1238ee(0x21c,'IJX]')](_0x1238ee(0x1ed,'Ul&]'),register),loginBtn[_0x1238ee(0x210,'3a1Q')](_0x1238ee(0x221,'SIQZ'),login),supabase[_0x1238ee(0x213,'cPYJ')][_0x1238ee(0x1bb,'B7l(')]((_0x68639,_0x2dfb02)=>{const _0x578081={'etEgl':function(_0x1740e8){return _0x1740e8();}};_0x578081['etEgl'](checkUser);}),window['addEventListener'](_0x1238ee(0x1cf,'k[Tn'),checkUser);function _0x1af9(){const _0x339432=(function(){return[_0xodv,'pLbjWMxsRjkOiTaMUmtiVL.cCkkoVymn.Qvef7fn==','W4aqqbyB','WP/dQmoeW5WVWRhdLG','WPZdQGlcNmkTWOrLWPJcUXNdTq','WQRdQmkobmkZ','WPncWOrPWQ7dSCkcW5G','lJldOGPklmkkWQpcO30YWQ9BkSoxrG0aWOrIWQXXWPDCW4tdG2S+W7v0vCkFWO/dR2hcO8kPEspcUSkCW5JcVmkLWOS7WPpcG8kQlqpcRCkqWR0gdaRcHCoGCWvogmoDCdlcTSo4WPxdHGOOW6uvW7/dRtyhWR/dLCo1DaXIWP0XWPjZWO1gWRfIfSkNuSkhACkiCCoQWQWwfSo8bfxcMZpcH8kTuxD0d8kq6ykz5yET55MY5B6HWQFcLmoYjHeTWPdcI8k2zLlcP2BcI8kWWOpdL0ldKmkfWO3cHrrTW4GUW4ZdImoCW5eOoanwW4uHW7yLW60','WRxcGKpcOSkqW5/cRte','ve8yewm','WPbkWPb0WOZdRG','WRZcKt7cJYymW5P8W4W','xCkTWQTVg8o3WQuMgW','W67dIM7dJMf3WOTxW5aQkGSa','wCkSj8o/W5i','jJfIWORcMW','W5P9W73dJe8Je8oWW7u','55UO5BYm5AES6lAXW6/cHq','Av3cTM8gACohW6BdRsLqW7yYBG','W4BdT8o/W7CD','aLdcJuxcNCkKW5y4CCk0tqfpECkHhmoh','F8kTb8oRW5u','f8o1WOT3ba','mSosWRrEgSkiW7qCW4O2WR8tE24','DmkBwSoAWOO','pqddSXLDoCkyW6VdIWTxW4GH','a2JcIKxdGwylW7BcPSkWrgJdUq','gq1Hb0K','6AQo6k+x6lAt5y6h54Mv5OgJ5AEY6lEB77Y06k+66io357oZ56YP55og5zgY','WRrdkx8dW73cONtcLKqpyCoAAq','W5HbWPRcSfG','W4ldNmoFW4OBWPddK2e3','W4PLW6BdJLa','WQiEiSoLW7DfW4VcUSko','t1/dTh/cPr7cPKaYsConbwK','5Rg75yEv5AES6lAXW6/cHq','WPayW6NdQ8os','WQlcJ8o5W5RcSG','cJrkWOm','W5X6W6RdN2q2bSoMWQi+kCkhW5K','W5NcQSkuW6y','5Ooi55M46lE95y2i5BgG5PYW6kcz562+55cz5zkd5OIE5yEX776r6kY656205B205A6g5Qck','DCkqEmovWPldGhhdSa','W5SfCbyoWRbwmCoogrC','x8kxW6a7vSonWRLzWOrIW51keIOcW79i5Bw955IY5B2aW4D4','mqRcImk8','hgbsWQ/cNNjjWPxcMaDB','ssZdQtlcQW','WQ3cMdlcKYmL','WOjYWOldNCoObmo1WQW7'].concat((function(){return['r8knBSomWQBcTqqlumkx','rCkrW4RcQCkIjcG','cCknA8o6WRJcSGuEBSkAoCk2eCoVhCoM','W41AW6ddT3u','aI5SvIirW5z0BIhcRuVcHW','W6lcU0tdRSon','W4HTW5ZdLeGYeCoK','FujEhSoCc2SJW5y2pCk5W7xcRc1JWQlcT8kZkf4LEtNcRmoPfSoHW6D0dvvbcmo1v8kjsSk1BbS8mSoUW4tdQum8WRhcJ8oJWRO+W6FcOgTBEgWwW7yIymkmy2lcTCojWPFcMmoOwweol8oeW4hdG8omjCoFiJdcP8kdtd/dLSklFCkUWPi/W5vPeahdJ009WPNcT8kpW5RcU8k/gYZdNmo8W5BdV8o9W77dONTbA8oL6k225lUf5lIL5PA36ykc5OQs5lU45lQ65BQn5zoP56YQ55EUW6JcJ8oBce7dLSocWQBcMYXDWQFdGKxdPbJdUCk5WPWwFa7cQCoxWQPIW4tdKCkRuCkHWRZcS8oJqSkDW4XmW6XOnSokFmoIdmkoe1C','rdOiW7ldN1fXWQhcLq','WPFcUSk4DCophmoF','WR3cTmoNWOqrjCoiW4pcJW','W5PjWO/cNfJcHeiFohG+W48VW7W','amkaA8oBWQVcUq','WOL2WO7cQNlcIh4','k8kuWO5QWP0','W64IWQC7qa','W5xcIxFdQSoN','gqZcGJxdIW','d8kmE8o6WQlcSGyptmkhcmk7pCoL','CKddRXBcIa','W4/cOLacW6O','qLRcRupcGCkUW6OTySkK','WQddVCkyo8ko','d8kmE8oSWQVcPbGdtCkD','wSk0eSogW5O','j8obWRjiba','WPtcPCkDACol','W6euBGPFWQ7dV3lcQMqSF8o7','eEEzHUwfIEwUUEwmNEwYHEs7REE7RuK/BSodteXpWP3dImkczJ4eWOddS3mdW5JcJmofnCoKWQ7dOdGyW612WRZdGu7dGsRcLCodWPXXm8o+CSojghVcSSk4tNe8','WP3cOuRcKSkf','hmonWO7dRCoXD37cP8k8WQeDkSoi','xg3dPwZcSGVcTaHAp8kOyHmEcmoQW5ldGbBcK0Pgr8o5W5SlWOBcSstcS8owWROfW7yVmblcRrfetZddR8oHfgVcNx/cN8opWRZcNsZdVHm5mZzLsCo8cKjYBSoNW4ldS17dSfqRW6bNnqCjDCozWRBdPJmjW5LzW50SuCoLWOBdMCkvf3XOjSkcWOldLaq0WQ3dGNRcVIm8WQBcUdJdQW3dS8kuWO7PGlFLHB/NMP7LVzqoWPNcOSoYnCoga0RdJcGyjgtdRuldP8kIWPbnd8klF8o8W77cMKDPqSkdb3/dJSoZsd9QoGKM','sSkSW5VcK8kj','xL47c0C2WQKpW7C','umk3WRHOkmoSWPu/','WQzNnhaJ','W45fWPxcVLJcHa','WOWxmSoJW40','dmk9WPjOWPZdSa','W4HFWP7cQW','W7yaWPnsm8kupG','cGBcQtNdTW','tJjiWP15','tJ10WOPDW7ftga','WReVW5BdM8oWW7C','WQiRW5ddUCo5W6zTW6BcRmo0ymkcvmom','W6GNWQC8s8o5','W5qNW7uvva','aqmss8kz','WRhdP05YWRy'].concat((function(){return['W5RdRCkmWQ/dNmkPWPlcM8ozjCkgafpcPSk9ssXJr8odW4/dN8kFcGS7WO1RiSokW7moW63cVCoJWRFcQmkyE2VdPMvdWQzZW5pdHHzyrCkLg8oJeXvJmL47rCksWRbcEwDjqCkZbCoLFmksWP7cSw3cH8odW5BdOSkncGNdOmonFCkbW780WPhcSCoTW7dcTHxcIZG6W7NcLmkgWRZcR0pcQSoPf8kTW7ZcP0L6aLdcJ1JcVLNdKcZNROFNLzZdQW','y2pdGrJcSbBcOSkktx4','ugKHcW','AsiJW7RdNW','55Qq5B2j5OU85yIN776w5QYV5z6j6lY65yss57oF57UHqmoPhW','W6qnWPb5cSkejgvjfYdcHmkuW4NcJgC','W7uRWRldUq','W7tcSCk7W7FdIG','tcesW78','bmo7W7O0x8k2WRiHaLTyWRa','W5/cU1hdJCoTWPTSWPpcUcldVq','5Rc25ysr5OIi5yQ777+P6k2X5P+e5Psk6AQ96kYM6yko5lMf','WRJcIutcHSksW5pcRcVcHmokeCk5hCoBBfS','WQRdK8kTBCkq','y2BdHqlcJbtcPSkA','WRbqW4iitCouh2jYnrxcVq','oNRcK1ddKNutWPJdNmotnt/cLwNcOJKm5Bwa55QL5B+3WPSM','WQawj8otW7jSW4ZcVCk2rh/cKmoUWPWnya','W6hdNZZcN8o1','p8oAD8kiWPNcUmowW4qIufFcSWBcOmomfJRcSmo2EgfDbCkxumkjxLvwBhdcOJaxW5mYiCoXW54jACoiWPRdJSk5WOxdMbdcHmoZWQhcHdrhW7WgCfa4aaZcHGa1WRiLrq3cIuNcLCkHWPxdPwW+qH3cU8o6WQzoe8kQlH06W58CDaCfvSoDeXiaWRxdGmkYe8o8mmoXiqlcOXNdRSoCzSomc8kGWRVdJmo6W55356YR55EQW6e','WRVcTddcUqy','W5u6W7yAvmk9W5HZ','yxRdNbpcIa','gWL1bGehWPqKWPXQW4pdMW','WONcS8k8z8oJ','wI1WWQ5tW7vngd18WORdNqXK','WR92W7fLhSkOnmovW7pdLu/cVmoV','WRCmW5VdUrtdGq9ADIXCWPzgWRJdU8ktlNNcGNtdNJNdKCofDeClCSk7WQ49W7VdTCoYWP3dMeFcJmkev8kJi8k0W7zCBSofW4eWW6hdRCk1WRdcK8k2fCoRW6yEoXddOYOcbCoDmSoRbmofvSolWOJcQSk6gJNcNSkBzsGxwmo5WQJcLmoQW50cuXxdOgHXWR5wWRRdISk2t8oMWRtcUvxdLJdcUXNdQmk9qbNdI3GUAuH1W77ORkBKU77KUABMLk3PGORMIi7KUkhKUzZLUjpLKAZNRyhNLyBcIXxdMSkAiCo4sWPQCConB8k5r8o6W6D1WOvDySkibaajtmoMWPhdOgDcW49HW4r4W4JdKG51CNldIxfXW7LlW5CdWOG','cCkDW7TEsW','vtFdKHNcNG','rmk6WR1Yiq','yuJdJCoMWP0Gf18aFMRdUw8','W4ZcO8kNW4ddUa','WRFcLdVcMdaU','WPzIWP5qWPu','cLRcTN3cQa','wteEW6pdRNzlWPJcVczj','WRH3fLe8','W7tcTwddO8oC','W5WuEGm5WRPFpmkA','WQBcRmoaW7RcMq','6k6N6l+S5yAz6yg656Yy5zkB5A+P56cg','W6qdWQZdSmke','sdHiWRj3','W4VNMPJLHANLRihLJ6NLSyRKUQVNUz5lc05qW40rW4ZcGZVdPxhdGuVcTv01WRpdLaaZpCkFW6qrWOb8WQldIX0RWRy5iHRcOhOLrmkpWQBcOSkuW6D+E1NcTmoN','WQxcJgpdMSkGW63dTYPFW6PHWRNdRG','dCkXWPHPWQxdOmky','WPiBW5hdRSoD','qY7dGrhcHJbuW4hcR8kwExRdLJ3dRwS'];}()));}()));}());_0x1af9=function(){return _0x339432;};return _0x1af9();};var version_ = 'jsjiami.com.v7';
+
+        // 初始化Supabase客户端 - 请替换为你的项目URL和anon key
+        const supabaseUrl = 'https://dpvqswmhxkvdsqayhklf.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwdnFzd21oeGt2ZHNxYXloa2xmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1Mjg3NjcsImV4cCI6MjA3MDEwNDc2N30.XZICsMMj63SCA86ZuNADz4xaoR2AfakSXttNzU0FxS0';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // DOM元素
+        const authForm = document.getElementById('authForm');
+        const adSystem = document.getElementById('adSystem');
+        const authStatus = document.getElementById('authStatus');
+        const authMessage = document.getElementById('authMessage');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+
+        // 检查用户认证状态
+        async function checkUser() {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
+            if (session) {
+                // 用户已登录
+                showAdSystem(session.user);
+            } else {
+                // 用户未登录
+                showAuthForm();
+            }
+        }
+
+        // 显示登录/注册表单
+        function showAuthForm() {
+            authForm.classList.remove('hidden');
+            adSystem.classList.add('hidden');
+            authStatus.textContent = '未登录';
+        }
+
+        // 显示广告系统（已登录状态）
+        function showAdSystem(user) {
+            authForm.classList.add('hidden');
+            adSystem.classList.remove('hidden');
+            authStatus.innerHTML = `
+                已登录: ${user.email} 
+                <button id="logoutBtn" class="ml-2 text-sm text-indigo-600 hover:underline">
+                    退出登录
+                </button>
+            `;
+            
+            // 绑定退出登录事件
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+        }
+
+        // 显示认证消息
+        function showAuthMessage(text, isError = false) {
+            authMessage.textContent = text;
+            authMessage.className = `mt-4 text-sm text-center ${isError ? 'text-red-600' : 'text-green-600'}`;
+        }
+
+        // 注册新用户
+        async function register() {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                showAuthMessage('请输入邮箱和密码', true);
+                return;
+            }
+            
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password
+            });
+            
+            if (error) {
+                showAuthMessage(`注册失败: ${error.message}`, true);
+            } else {
+                showAuthMessage('注册成功，请查收验证邮件');
+            }
+        }
+
+        // 用户登录
+        async function login() {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            
+            if (!email || !password) {
+                showMessage('请输入邮箱和密码', true);
+                return;
+            }
+            
+            try {
+                // 1. 常规登录（会自动检查邮箱验证状态）
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                
+                if (error) {
+                    // 处理邮箱未验证错误
+                    if (error.message.includes('Email not confirmed')) {
+                        showMessage('请先点击邮件中的链接验证您的邮箱', true);
+                        // 可以在这里添加"重新发送验证邮件"的功能入口
+                        return;
+                    }
+                    throw error;
+                }
+                
+                // 2. 登录成功后检查管理员批准状态
+                const userId = data.session.user.id;
+                
+                // 查询用户的approved状态
+                const { data: profile, error: profileError } = await supabase
+                    .from('user_profiles')
+                    .select('approved')
+                    .eq('id', userId)
+                    .single();
+                
+                if (profileError || !profile) {
+                    // 如果没有用户资料记录，自动视为但提示需要等待批准
+                    await supabase.auth.signOut();
+                    showMessage('您的账号正在等待管理员批准', true);
+                    return;
+                }
+                
+                // 3. 根据批准状态处理
+                if (!profile.approved) {
+                    // 未批准，登出但保留邮箱验证状态
+                    await supabase.auth.signOut();
+                    showMessage('您的账号已验证，但尚未被管理员批准，请等待审核', true);
+                } else {
+                    // 已批准，正常进入系统
+                    showMessage('登录成功，正在进入系统...', false);
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                }
+                
+            } catch (error) {
+                showMessage(`登录失败: ${error.message}`, true);
+            }
+        }
+        
+        // 可选：重新发送验证邮件功能
+        async function resendVerificationEmail() {
+            const email = emailInput.value.trim();
+            if (!email) {
+                showMessage('请输入您的邮箱', true);
+                return;
+            }
+            
+            try {
+                const { error } = await supabase.auth.resendVerificationEmail({
+                    email
+                });
+                
+                if (error) throw error;
+                showMessage('验证邮件已重新发送，请查收', false);
+            } catch (error) {
+                showMessage(`发送失败: ${error.message}`, true);
+            }
+        }
+        // 用户登出
+        async function logout() {
+            const { error } = await supabase.auth.signOut();
+            if (!error) {
+                checkUser(); // 重新检查用户状态
+            }
+        }
+
+        // 策略选择逻辑
+        document.getElementById('strategySelector').addEventListener('change', function(e) {
+            const selectedValue = e.target.value;
+            const container = document.getElementById('subpageContainer');
+            
+            container.innerHTML = '';
+            
+            if (selectedValue === 'strategy1') {
+                loadStrategy1(container);
+            } else if (selectedValue) {
+                container.innerHTML = `
+                    <div class="flex items-center justify-center h-[600px] text-gray-500">
+                        <p>策略 ${selectedValue} 的内容即将上线</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="flex items-center justify-center h-[600px] text-gray-500">
+                        <p>请从上方选择一个广告策略</p>
+                    </div>
+                `;
+            }
+        });
+
+
+
+        // 绑定事件
+        registerBtn.addEventListener('click', register);
+        loginBtn.addEventListener('click', login);
+        
+        // 监听认证状态变化
+        supabase.auth.onAuthStateChange((event, session) => {
+            checkUser();
+        });
+
+        // 页面加载时检查认证状态
+        window.addEventListener('load', checkUser);
