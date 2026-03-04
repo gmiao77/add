@@ -11,14 +11,23 @@
 <body class="bg-gray-50 min-h-screen">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
         <div id="adSystem">
-            <header class="mb-8">
+            <header class="mb-4">
                 <h1 class="text-2xl font-bold text-gray-800 text-center">AMZ广告模板生成工具</h1>
             </header>
+
+            <nav class="flex justify-center space-x-8 mb-8 border-b border-gray-200">
+                <a href="index.html" class="pb-2 px-2 border-b-2 border-indigo-600 text-indigo-600 font-medium flex items-center">
+                    <i class="fa fa-wrench mr-2"></i>广告工具
+                </a>
+                <a href="about.html" class="pb-2 px-2 border-b-2 border-transparent text-gray-500 hover:text-indigo-600 hover:border-indigo-300 transition-all flex items-center">
+                    <i class="fa fa-info-circle mr-2"></i>关于工具
+                </a>
+            </nav>
     
             <main class="bg-white rounded-lg shadow-md p-6">
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">选择策略</label>
-                    <select id="strategySelector" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    <select id="strategySelector" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 outline-none">
                         <option value="">请选择策略</option>
                         <option value="strategy1">策略1 - 关键词批量</option>
                         <option value="strategy2">策略2 - ASIN定投</option>
@@ -32,7 +41,7 @@
                     </select>
                 </div>
     
-                <div id="strategyContent" class="min-h-[500px] border border-gray-200 rounded-lg p-4">
+                <div id="strategyContent" class="min-h-[500px] border border-gray-200 rounded-lg p-4 bg-gray-50">
                     <div class="flex items-center justify-center h-[500px] text-gray-500">
                         <p>请从上方选择策略</p>
                     </div>
@@ -41,7 +50,7 @@
         </div>
     
         <script>
-            // 策略映射表：策略标识 -> 对应的模块文件
+            // 策略映射逻辑保持不变
             const strategyMap = {
                 strategy1: 'strategy1.js',
                 strategy2: 'strategy2.js',
@@ -54,51 +63,43 @@
                 strategy9: 'strategy9.js'
             };
     
-            // 当前加载的策略模块
             let currentModule = null;
     
-            // 策略选择事件
             document.getElementById('strategySelector').addEventListener('change', async (e) => {
                 const strategyId = e.target.value;
                 const container = document.getElementById('strategyContent');
     
-                // 清空容器
-                container.innerHTML = '<div class="flex items-center justify-center h-[500px] text-gray-500"><p>加载中...</p></div>';
+                container.innerHTML = '<div class="flex items-center justify-center h-[500px] text-gray-500"><p><i class="fa fa-spinner fa-spin mr-2"></i>加载中...</p></div>';
     
                 if (!strategyId) {
-                    // 未选择策略
                     container.innerHTML = '<div class="flex items-center justify-center h-[500px] text-gray-500"><p>请从上方选择策略</p></div>';
                     currentModule = null;
                     return;
                 }
     
                 try {
-                    // 移除已加载的策略脚本
                     const oldScript = document.getElementById('strategyScript');
                     if (oldScript) oldScript.remove();
     
-                    // 加载新策略模块
                     const script = document.createElement('script');
                     script.id = 'strategyScript';
                     script.src = strategyMap[strategyId];
-                    script.type = 'module'; // 使用ES6模块
+                    script.type = 'module';
     
-                    // 等待脚本加载并执行
                     await new Promise((resolve, reject) => {
                         script.onload = resolve;
                         script.onerror = () => reject(new Error('策略加载失败'));
                         document.head.appendChild(script);
                     });
     
-                    // 调用模块的初始化方法
                     if (window[strategyId] && typeof window[strategyId].init === 'function') {
                         currentModule = window[strategyId];
-                        currentModule.init(container); // 将容器传递给模块
+                        currentModule.init(container);
                     } else {
                         throw new Error('策略模块格式错误');
                     }
                 } catch (error) {
-                    container.innerHTML = `<div class="flex items-center justify-center h-[500px] text-red-500"><p>加载失败: ${error.message}</p></div>`;
+                    container.innerHTML = `<div class="flex items-center justify-center h-[500px] text-red-500"><p><i class="fa fa-exclamation-triangle mr-2"></i>加载失败: ${error.message}</p></div>`;
                     currentModule = null;
                 }
             });
