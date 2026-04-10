@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background: transparent; }
@@ -144,14 +144,47 @@
             animation: breathe 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .orb-1 { width: 45vw; height: 45vw; background: #EAE5E1; top: -15%; left: -10%; animation-duration: 25s; }
-        .orb-2 { width: 55vw; height: 55vw; background: #F0ECE9; bottom: -20%; right: -15%; animation-duration: 32s; animation-delay: -5s; }
-        .orb-3 { width: 40vw; height: 40vw; background: #E6E4E2; top: 30%; left: 40%; animation-duration: 28s; animation-delay: -12s; }
+        .orb-1 {
+            width: 45vw;
+            height: 45vw;
+            background: #EAE5E1;
+            top: -15%;
+            left: -10%;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 55vw;
+            height: 55vw;
+            background: #F0ECE9; 
+            bottom: -20%;
+            right: -15%;
+            animation-duration: 32s;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 40vw;
+            height: 40vw;
+            background: #E6E4E2; 
+            top: 30%;
+            left: 40%;
+            animation-duration: 28s;
+            animation-delay: -12s;
+        }
 
         @keyframes breathe {
-            0% { transform: scale(1) translate(0, 0); opacity: 0.3; }
-            50% { opacity: 0.6; }
-            100% { transform: scale(1.1) translate(3%, 4%); opacity: 0.4; }
+            0% {
+                transform: scale(1) translate(0, 0);
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: scale(1.1) translate(3%, 4%);
+                opacity: 0.4;
+            }
         }
     </style>
 </head>
@@ -165,38 +198,24 @@
         <div class="light-orb orb-3"></div>
     </div>
 
-    <div id="loginModal" class="modal-overlay">
-        <div class="modal-container">
-            <h2 class="modal-title">系统验证</h2>
-            
-            <div class="relative mt-2">
-                <input type="password" id="authPassword" class="modal-input pr-8" placeholder="请输入访问口令">
-                
-                <button type="button" onclick="togglePassword()" class="absolute right-0 top-1/2 transform -translate-y-1/2 text-stone-400 hover:text-stone-600 focus:outline-none bg-white px-2">
-                    <i id="eyeIcon" class="fa fa-eye"></i>
-                </button>
-            </div>
-            
-            <p id="errorMsg" class="error-msg">口令不正确</p>
-            
-            <button onclick="unlockSystem()" class="modal-button">
-                进入系统
-            </button>
-        </div>
-    </div>
-
     <div class="container mx-auto px-6 py-12 max-w-4xl relative z-10 flex flex-col flex-grow">
 
-        <div id="adSystem" class="hidden-system flex-grow"> 
+        <div id="adSystem" class="block flex-grow"> 
             <header class="mb-12">
                 <h1 class="text-3xl font-normal tracking-widest text-stone-900">AMZ广告工具箱</h1>
                 <p class="text-sm text-stone-400 mt-2 tracking-wider">批量广告模板生成器</p>
             </header>
 
             <nav class="flex space-x-10 mb-10 border-b border-stone-200">
-                <a href="index.html" class="pb-3 border-b-2 border-red-700 text-stone-900 font-medium tracking-widest text-sm flex items-center transition-colors">广告工具</a>
-                <a href="about.html" class="pb-3 border-b-2 border-transparent text-stone-400 hover:text-stone-900 tracking-widest text-sm flex items-center transition-colors">关于工具</a>
-                <a href="negative.html" class="pb-3 border-b-2 border-transparent text-stone-400 hover:text-stone-900 tracking-widest text-sm flex items-center transition-colors">实验阶段</a>
+                <a href="index.html" class="pb-3 border-b-2 border-red-700 text-stone-900 font-medium tracking-widest text-sm flex items-center transition-colors">
+                    广告工具
+                </a>
+                <a href="about.html" class="pb-3 border-b-2 border-transparent text-stone-400 hover:text-stone-900 tracking-widest text-sm flex items-center transition-colors">
+                    关于工具
+                </a>
+                <a href="negative.html" class="pb-3 border-b-2 border-transparent text-stone-400 hover:text-stone-900 tracking-widest text-sm flex items-center transition-colors">
+                    实验阶段
+                </a>
             </nav>
     
             <main class="bg-white p-10 border border-stone-200">
@@ -239,49 +258,17 @@
         </footer>
     
         <script>
-            // 小眼睛切换密码明文/密文逻辑
-            function togglePassword() {
-                const pwdInput = document.getElementById('authPassword');
-                const eyeIcon = document.getElementById('eyeIcon');
-                
-                if (pwdInput.type === 'password') {
-                    pwdInput.type = 'text';
-                    eyeIcon.classList.remove('fa-eye');
-                    eyeIcon.classList.add('fa-eye-slash');
-                } else {
-                    pwdInput.type = 'password';
-                    eyeIcon.classList.remove('fa-eye-slash');
-                    eyeIcon.classList.add('fa-eye');
-                }
-            }
-
-            // 密码验证通过后解锁系统的逻辑
-            function unlockSystem() {
-                const pwd = document.getElementById('authPassword').value;
-                const errorMsg = document.getElementById('errorMsg');
-                const modal = document.getElementById('loginModal');
-                const adSystem = document.getElementById('adSystem');
-
-                if (pwd.trim() === '') {
-                    errorMsg.classList.add('show');
-                    document.querySelector('.modal-container').classList.add('shake');
-                    setTimeout(() => {
-                        document.querySelector('.modal-container').classList.remove('shake');
-                    }, 300);
-                    return;
-                }
-                
-                // 验证通过，隐藏弹窗，显示主系统
-                errorMsg.classList.remove('show');
-                modal.style.display = 'none';
-                adSystem.classList.remove('hidden-system');
-                adSystem.classList.add('block');
-            }
 
             const strategyMap = {
-                strategy1: 'strategy1.js', strategy2: 'strategy2.js', strategy3: 'strategy3.js',
-                strategy4: 'strategy4.js', strategy5: 'strategy5.js', strategy6: 'strategy6.js',
-                strategy7: 'strategy7.js', strategy8: 'strategy8.js', strategy9: 'strategy9.js'
+                strategy1: 'strategy1.js',
+                strategy2: 'strategy2.js',
+                strategy3: 'strategy3.js',
+                strategy4: 'strategy4.js',
+                strategy5: 'strategy5.js',
+                strategy6: 'strategy6.js',
+                strategy7: 'strategy7.js',
+                strategy8: 'strategy8.js',
+                strategy9: 'strategy9.js'
             };
     
             let currentModule = null;
@@ -325,6 +312,7 @@
                 }
             });
         </script>
+
         <script src="css.js"></script>
     </div>
 </body>
