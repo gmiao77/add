@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亚马逊标题字符计算器</title>
+    <style>
+        /* Modern, clean, analytical styling */
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            background-color: #f4f6f8;
+            color: #1e293b;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .header {
+            background-color: #f8fafc;
+            padding: 30px 40px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0 0 8px 0;
+            letter-spacing: 0.5px;
+        }
+        .header p {
+            font-size: 13px;
+            color: #64748b;
+            margin: 0;
+        }
+        .content {
+            padding: 40px;
+        }
+        .input-group {
+            margin-bottom: 30px;
+        }
+        .label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 16px;
+            font-size: 15px;
+            font-family: inherit;
+            color: #334155;
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            resize: vertical;
+            outline: none;
+            transition: all 0.2s;
+            line-height: 1.5;
+        }
+        textarea:focus {
+            border-color: #94a3b8;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(226, 232, 240, 0.5);
+        }
+        .dashboard {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap; /* Added for responsiveness */
+        }
+        .card {
+            flex: 1;
+            min-width: 150px; /* Added for responsiveness */
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .card-title {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .card-value {
+            font-size: 32px;
+            font-weight: 300;
+            color: #0f172a;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            line-height: 1;
+        }
+        .card-value.highlight { color: #dc2626; font-weight: 500;}
+        .card-desc {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 8px;
+            min-height: 26px;
+        }
+        .output-group {
+            margin-bottom: 20px;
+        }
+        .optimized-box {
+            width: 100%;
+            min-height: 80px;
+            background-color: #ffffff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 15px;
+            color: #0f172a;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+        .optimized-box.empty {
+            color: #94a3b8;
+            font-style: italic;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background-color: #1e293b;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-align: center;
+        }
+        .btn:hover { background-color: #334155; }
+        .btn:active { background-color: #0f172a; }
+        
+        .anomaly-list {
+            margin-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+            display: none;
+        }
+        .anomaly-item {
+            font-size: 13px;
+            color: #475569;
+            background-color: #fff1f2;
+            border-left: 3px solid #f43f5e;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 0 4px 4px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .status-safe { background-color: #dcfce7; color: #166534; }
+        .status-warn { background-color: #fee2e2; color: #991b1b; }
+
+        @media (max-width: 600px) {
+            .dashboard {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>亚马逊标题字符计算器</h1>
+    </div>
+    
+    <div class="content">
+        <div class="input-group">
+            <label class="label">输入原始标题文案 (包含空格和标点)</label>
+            <textarea id="rawInput" placeholder="在此粘贴你的标题" autofocus></textarea>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <div class="card-title">标准字符 (LEN)</div>
+                <div class="card-value" id="charCount">0</div>
+                <div class="card-desc">同表格 LEN，包含空格与标点</div>
+            </div>
+            <div class="card" style="background-color: #f1f5f9;">
+                <div class="card-title">底层预估长度</div>
+                <div class="card-value" id="byteCount">0</div>
+                <div class="card-desc">HTML 转义 & 多字节膨胀后</div>
+            </div>
+            <div class="card">
+                <div class="card-title">隐形差距</div>
+                <div class="card-value" id="diffCount">0</div>
+                <div class="card-desc">由于转义或特殊符号虚增的额度</div>
+            </div>
+        </div>
+
+        <div id="statusBadge" class="status-badge status-safe" style="display: none;"></div>
+
+        <div class="output-group">
+            <label class="label">智能大写与安全净化输出</label>
+            <div id="optimizedOutput" class="optimized-box empty">等待输入...</div>
+            <button class="btn" id="copyBtn" style="margin-top: 15px;">复制优化后的标题</button>
+        </div>
+
+        <div id="anomalyContainer" class="anomaly-list">
+            <!-- Anomaly items injected here -->
+        </div>
+    </div>
+</div>
+
+<script>
+    const inputEl = document.getElementById('rawInput');
+    const charCountEl = document.getElementById('charCount');
+    const byteCountEl = document.getElementById('byteCount');
+    const diffCountEl = document.getElementById('diffCount');
+    const outputEl = document.getElementById('optimizedOutput');
+    const anomalyContainer = document.getElementById('anomalyContainer');
+    const statusBadge = document.getElementById('statusBadge');
+    const copyBtn = document.getElementById('copyBtn');
+
+
+    const lowercaseWords = new Set([
+        'a', 'an', 'the', 'and', 'but', 'or', 'for', 'nor', 'on', 'at', 'to', 'from', 'by', 'with', 'in', 'of', 'as'
+    ]);
+
+
+    const replaceMap = {
+        '，': ', ', '。': '. ', '“': '"', '”': '"', '‘': "'", '’': "'", 
+        '—': '-', '–': '-', '：': ': ', '；': '; ', '！': '! ', '？': '? ', 
+        '（': '(', '）': ')', '【': '[', '】': ']', '《': '<', '》': '>', 
+        '￥': '$', '…': '...', ' ': ' ', '™': 'TM', '®': '(R)', '©': '(C)'
+    };
+
+    function titleCaseAmazon(text) {
+
+        let words = text.toLowerCase().split(/\s+/);
+        
+        let capitalizedWords = words.map((word, index) => {
+            if (word.length === 0) return '';
+            
+
+            let coreWordMatch = word.match(/^[\[\(\{<"'‘“]*([a-z0-9]+.*?[a-z0-9]?)[\]\)\}>"'’”]*[.,:;!?]*$/i);
+            let coreWord = coreWordMatch ? coreWordMatch[1].toLowerCase() : word.toLowerCase();
+
+       
+            if (index === 0 || index === words.length - 1) {
+                return capitalizeWord(word);
+            }
+            
+
+            if (lowercaseWords.has(coreWord)) {
+                return word;
+            }
+
+
+            return capitalizeWord(word);
+        });
+
+        let result = capitalizedWords.join(' ');
+        
+
+        result = result.replace(/-([a-z])/g, function(match, p1) {
+            return '-' + p1.toUpperCase();
+        });
+
+        return result;
+    }
+    
+
+    function capitalizeWord(word) {
+        let firstAlphaIndex = word.search(/[a-z]/i);
+        if(firstAlphaIndex !== -1) {
+            return word.substring(0, firstAlphaIndex) + 
+                   word.charAt(firstAlphaIndex).toUpperCase() + 
+                   word.substring(firstAlphaIndex + 1);
+        }
+        return word.charAt(0).toUpperCase() + word.slice(1);
+    }
+
+    function processText() {
+        const rawText = inputEl.value;
+        if (!rawText) {
+            charCountEl.innerText = '0';
+            byteCountEl.innerText = '0';
+            byteCountEl.classList.remove('highlight');
+            diffCountEl.innerText = '0';
+            outputEl.innerText = '等待输入...';
+            outputEl.classList.add('empty');
+            anomalyContainer.style.display = 'none';
+            statusBadge.style.display = 'none';
+            return;
+        }
+
+        let charCount = rawText.length;
+        let expandedBytes = 0;
+        let anomalies = [];
+        let cleanText = '';
+
+
+        const fullWidthRegex = /[^\x00-\xff]/;
+        
+        for (let i = 0; i < rawText.length; i++) {
+            let char = rawText[i];
+            let charSize = 1;
+            
+
+            if (replaceMap[char] !== undefined) {
+                cleanText += replaceMap[char];
+                charSize = 3; // Original full-width usually takes 3
+                anomalies.push(`位置 ${i+1}: 发现全角/特殊标点 [ ${char} ]，占用 3 个长度。已被降级转换。`);
+            } else {
+                cleanText += char;
+                // Calculate Expansion for HTML Entities
+                if (char === '&') { charSize = 5; anomalies.push(`位置 ${i+1}: 发现 "&" 符号。在亚马逊后台会被转义为 "&amp;"，强行占用 5 个长度！建议改为 "and"。`); }
+                else if (char === '"') { charSize = 6; anomalies.push(`位置 ${i+1}: 发现双引号。可能被转义为 "&quot;"，强行占用 6 个长度！`); }
+                else if (char === '<') { charSize = 4; anomalies.push(`位置 ${i+1}: 发现 "<" 符号。会被转义为 "&lt;"，占用 4 个长度！`); }
+                else if (char === '>') { charSize = 4; anomalies.push(`位置 ${i+1}: 发现 ">" 符号。会被转义为 "&gt;"，占用 4 个长度！`); }
+                else if (fullWidthRegex.test(char)) {
+                     // Assume CJK/Multibyte
+                     charSize = 3;
+                }
+            }
+            expandedBytes += charSize;
+        }
+
+
+        if (/,(?=[^\s])/g.test(cleanText)) {
+            cleanText = cleanText.replace(/,(?=[^\s])/g, ', ');
+            anomalies.push(`优化提示: 发现英文逗号后缺少空格，已在输出结果中自动补充。`);
+        }
+
+
+        let optimizedTitle = titleCaseAmazon(cleanText);
+
+
+        charCountEl.innerText = charCount;
+        byteCountEl.innerText = expandedBytes;
+        let diff = expandedBytes - charCount;
+        diffCountEl.innerText = `+${diff}`;
+
+        if (expandedBytes > charCount) {
+            byteCountEl.classList.add('highlight');
+        } else {
+            byteCountEl.classList.remove('highlight');
+        }
+
+
+        outputEl.innerText = optimizedTitle;
+        outputEl.classList.remove('empty');
+
+   
+        if (anomalies.length > 0) {
+            statusBadge.style.display = 'inline-block';
+            statusBadge.className = 'status-badge status-warn';
+            statusBadge.innerText = '⚠️ 检测到隐藏膨胀风险';
+            
+            anomalyContainer.style.display = 'block';
+            anomalyContainer.innerHTML = '';
+            anomalies.forEach(msg => {
+                let div = document.createElement('div');
+                div.className = 'anomaly-item';
+                div.innerText = msg;
+                anomalyContainer.appendChild(div);
+            });
+        } else {
+            statusBadge.style.display = 'inline-block';
+            statusBadge.className = 'status-badge status-safe';
+            statusBadge.innerText = '✓ 格式纯净，未发现隐藏膨胀字符';
+            anomalyContainer.style.display = 'none';
+        }
+    }
+
+    copyBtn.addEventListener('click', () => {
+        const textToCopy = outputEl.innerText;
+        if (!textToCopy || outputEl.classList.contains('empty')) return;
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalText = copyBtn.innerText;
+            copyBtn.innerText = '✓ 标题已复制';
+            copyBtn.style.backgroundColor = '#166534';
+            setTimeout(() => {
+                copyBtn.innerText = originalText;
+                copyBtn.style.backgroundColor = '#1e293b';
+            }, 1500);
+        });
+    });
+
+    inputEl.addEventListener('input', processText);
+</script>
+
+</body>
+</html>
