@@ -174,39 +174,29 @@ export const strategy1 = {
         return groups;
     },
     
-    generateTemplate() {
+generateTemplate() {
         try {
-            // 获取表单数据
+            if (!this.parseKeywords()) return;
+            
             const formData = new FormData(this.form);
             const inputs = {};
             formData.forEach((value, key) => inputs[key] = value);
             inputs.sku_independent = formData.has('sku_independent');
             
             // 验证必填项
-            const required = ["广告活动名称", "广告组名称", "SKU", "预算", "bid"];
-            required.forEach(field => {
+            ["广告活动名称", "广告组名称", "SKU", "预算", "bid"].forEach(field => {
                 if (!inputs[field]) throw new Error(`${field} 不能为空`);
             });
             
-            // 验证关键词
-            if (this.keywords.length === 0) throw new Error("请先导入关键词");
-            
-            // 处理参数
             const copyCount = Math.min(100, Math.max(0, parseInt(inputs["复制次数"]) || 0));
             const groupCount = Math.max(1, parseInt(inputs["关键词分组数量"]) || 1);
             const skus = inputs["SKU"].split(",").map(s => s.trim()).filter(s => s);
             const bids = inputs["bid"].split(",").map(b => b.trim()).filter(b => b);
-            const percentages = inputs["百分比"] ? 
-                inputs["百分比"].split(",").map(p => p.trim()).filter(p => p) : ["0"];
+            const percentages = inputs["百分比"] ? inputs["百分比"].split(",").map(p => p.trim()).filter(p => p) : ["0"];
             
-            if (skus.length === 0) throw new Error("请输入有效SKU");
-            if (bids.length === 0) throw new Error("请输入有效bid");
-            
-            // 分组关键词
             const groupedKeywords = this.splitKeywordsIntoGroups(groupCount);
             const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-            
-            // 构建CSV
+                       // 构建CSV
             const header = [
                 "Product", "Entity", "Operation", "Campaign ID", "Ad Group ID", "Portfolio ID", "Ad ID",
                 "Keyword ID", "Product Targeting ID", "Campaign Name", "Ad Group Name", "Start Date",
