@@ -146,6 +146,39 @@ export const strategy1 = {
                     <div id="statusDisplay" class="w-full h-32 p-3 border border-gray-300 rounded-md bg-gray-50 overflow-y-auto text-sm text-gray-700"></div>
                 </div>
             </form>
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">使用指引</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="flex items-start space-x-4">
+                        <img src="https://via.placeholder.com/80" alt="步骤1" class="w-20 h-20 object-cover rounded-lg shadow">
+                        <div>
+                            <h4 class="font-semibold text-indigo-600">第一步：准备数据</h4>
+                            <p class="text-sm text-gray-600">将关键词整理在Excel第一列，确保文件为.xlsx格式，无多余表头干扰。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <img src="https://via.placeholder.com/80" alt="步骤2" class="w-20 h-20 object-cover rounded-lg shadow">
+                        <div>
+                            <h4 class="font-semibold text-indigo-600">第二步：配置参数</h4>
+                            <p class="text-sm text-gray-600">填入广告活动基础信息，多个SKU或竞价请用英文逗号(,)分隔。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <img src="https://via.placeholder.com/80" alt="步骤3" class="w-20 h-20 object-cover rounded-lg shadow">
+                        <div>
+                            <h4 class="font-semibold text-indigo-600">第三步：批量生成</h4>
+                            <p class="text-sm text-gray-600">点击生成按钮，系统会自动合并SKU与关键词逻辑，导出可直接上传的CSV文件。</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <img src="https://via.placeholder.com/80" alt="提示" class="w-20 h-20 object-cover rounded-lg shadow">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">注意事项</h4>
+                            <p class="text-sm text-gray-600">若勾选“所有SKU放进同一广告活动”，系统将尝试优化账户层级结构。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `;
     },
     
