@@ -176,15 +176,17 @@ export const strategy1 = {
     
 generateTemplate() {
         try {
-            if (!this.parseKeywords()) return;
-            
+            if (!this.parseKeywords()) {
+                return; 
+            }
+
             const formData = new FormData(this.form);
             const inputs = {};
             formData.forEach((value, key) => inputs[key] = value);
             inputs.sku_independent = formData.has('sku_independent');
             
-            // 验证必填项
-            ["广告活动名称", "广告组名称", "SKU", "预算", "bid"].forEach(field => {
+            const required = ["广告活动名称", "广告组名称", "SKU", "预算", "bid"];
+            required.forEach(field => {
                 if (!inputs[field]) throw new Error(`${field} 不能为空`);
             });
             
