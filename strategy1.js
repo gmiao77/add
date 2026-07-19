@@ -13,7 +13,7 @@ export const strategy1 = {
         this.bindEvents();
         
         // 显示初始化状态
-        this.showStatus('策略1已加载，可开始配置', 'success');
+        this.showStatus('策略1已加载，可粘贴关键词开始配置', 'success');
     },
     
     // 生成策略1的HTML结构
@@ -31,31 +31,26 @@ export const strategy1 = {
                         <input type="text" name="广告活动名称" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">广告组名称</label>
                         <input type="text" name="广告组名称" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">SKU</label>
                         <input type="text" name="SKU" required placeholder="多个SKU用逗号分隔"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">预算</label>
                         <input type="text" name="预算" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">bid</label>
                         <input type="text" name="bid" required placeholder="多个bid用逗号分隔"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">匹配类型</label>
                         <select name="匹配类型" required
@@ -65,7 +60,6 @@ export const strategy1 = {
                             <option value="exact">exact</option>
                         </select>
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">竞价策略</label>
                         <select name="竞价策略" required
@@ -75,7 +69,6 @@ export const strategy1 = {
                             <option value="Dynamic bids - up and down">Dynamic bids - up and down</option>
                         </select>
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">竞价位置</label>
                         <select name="竞价位置"
@@ -86,19 +79,16 @@ export const strategy1 = {
                             <option value="placementProductPage">placementProductPage</option>
                         </select>
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">百分比</label>
                         <input type="text" name="百分比" placeholder="多个百分比用逗号分隔"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">关键词分组数量</label>
                         <input type="number" name="关键词分组数量" required min="1" value="1"
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">复制次数</label>
                         <input type="number" name="复制次数" required min="0" max="100" value="0"
@@ -106,192 +96,76 @@ export const strategy1 = {
                     </div>
                 </div>
 
-                <!-- 复选框 -->
                 <div class="pt-2">
                     <label class="inline-flex items-center">
-                        <input type="checkbox" name="sku_independent" 
-                            class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        <input type="checkbox" name="sku_independent" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
                         <span class="ml-2 text-sm text-gray-700">所有SKU放进同一广告活动</span>
                     </label>
                 </div>
 
-                <!-- 按钮组 -->
-                <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                    <div class="flex-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">导入关键词（从Excel导入）</label>
-                        <label class="flex items-center justify-center w-full">
-                            <div class="flex flex-col items-center justify-center w-full h-16 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100" id="dropArea">
-                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <i class="fa fa-cloud-upload text-gray-400 mb-2"></i>
-                                    <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">点击上传</span> 或拖放Excel文件</p>
-                                    <p class="text-xs text-gray-500">支持 .xlsx 格式</p>
-                                </div>
-                                <input id="keywordFile" type="file" accept=".xlsx" class="hidden" />
-                            </div>
-                        </label>
-                        <p id="keywordStatus" class="mt-2 text-sm text-gray-500">未选择文件</p>
-                    </div>
-
-                    <div class="flex-1 flex items-end">
-                        <button type="button" id="generateBtn" 
-                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            生成广告批量上传模板
-                        </button>
-                    </div>
+                <!-- 粘贴关键词区域 -->
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">粘贴关键词 (每行一个)</label>
+                    <textarea id="keywordInput" rows="6" 
+                        class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        placeholder="在此直接粘贴关键词..."></textarea>
                 </div>
 
-                <!-- 状态显示区域 -->
+                <div class="pt-2">
+                    <button type="button" id="generateBtn" 
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        生成广告批量上传模板
+                    </button>
+                </div>
+
                 <div class="pt-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">状态信息</label>
                     <div id="statusDisplay" class="w-full h-32 p-3 border border-gray-300 rounded-md bg-gray-50 overflow-y-auto text-sm text-gray-700"></div>
                 </div>
             </form>
-            <div class="mt-8 pt-6 border-t border-gray-200">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">使用指引</h3>
-                <div class="space-y-6">
-                    <div class="flex flex-col space-y-2">
-                        <h4 class="font-semibold text-indigo-600">第一步：准备数据</h4>
-                        <img src="YOUR_IMAGE_URL_1" alt="步骤1" class="w-full h-auto rounded-lg shadow border border-gray-100">
-                        <p class="text-sm text-gray-600">将关键词整理在Excel第一列，确保文件为.xlsx格式，无多余表头干扰。</p>
-                    </div>
-                    
-                    <div class="flex flex-col space-y-2">
-                        <h4 class="font-semibold text-indigo-600">第二步：配置参数</h4>
-                        <img src="YOUR_IMAGE_URL_2" alt="步骤2" class="w-full h-auto rounded-lg shadow border border-gray-100">
-                        <p class="text-sm text-gray-600">填入广告活动基础信息，多个SKU或竞价请用英文逗号(,)分隔。</p>
-                    </div>
-                    
-                    <div class="flex flex-col space-y-2">
-                        <h4 class="font-semibold text-indigo-600">第三步：批量生成</h4>
-                        <img src="YOUR_IMAGE_URL_3" alt="步骤3" class="w-full h-auto rounded-lg shadow border border-gray-100">
-                        <p class="text-sm text-gray-600">点击生成按钮，系统会自动合并SKU与关键词逻辑，导出可直接上传的CSV文件。</p>
-                    </div>
-                </div>
-            </div>
         `;
     },
     
-    // 绑定DOM元素
     bindElements() {
         this.form = document.getElementById('adForm');
-        this.keywordFileInput = document.getElementById('keywordFile');
-        this.keywordStatus = document.getElementById('keywordStatus');
+        this.keywordInput = document.getElementById('keywordInput');
         this.statusDisplay = document.getElementById('statusDisplay');
         this.generateBtn = document.getElementById('generateBtn');
-        this.dropArea = document.getElementById('dropArea');
     },
     
-    // 绑定事件处理函数
     bindEvents() {
-        // 文件上传相关事件
-        this.dropArea.addEventListener('click', () => this.keywordFileInput.click());
-        this.keywordFileInput.addEventListener('change', (e) => this.handleFileSelect(e));
-        
-        // 拖放事件
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            this.dropArea.addEventListener(eventName, this.preventDefaults.bind(this), false);
-        });
-        ['dragenter', 'dragover'].forEach(eventName => {
-            this.dropArea.addEventListener(eventName, this.highlight.bind(this), false);
-        });
-        ['dragleave', 'drop'].forEach(eventName => {
-            this.dropArea.addEventListener(eventName, this.unhighlight.bind(this), false);
-        });
-        this.dropArea.addEventListener('drop', (e) => this.handleDrop(e), false);
-        
-        // 生成按钮事件
         this.generateBtn.addEventListener('click', () => this.generateTemplate());
     },
     
-    // 拖放辅助函数
-    preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    },
-    
-    highlight() {
-        this.dropArea.classList.add('border-indigo-500', 'bg-blue-50');
-    },
-    
-    unhighlight() {
-        this.dropArea.classList.remove('border-indigo-500', 'bg-blue-50');
-    },
-    
-    // 处理文件选择
-    handleFileSelect(e) {
-        const file = e.target.files[0];
-        if (file) this.handleKeywordFile(file);
-    },
-    
-    // 处理拖放文件
-    handleDrop(e) {
-        const dt = e.dataTransfer;
-        const file = dt.files[0];
-        if (file) this.handleKeywordFile(file);
-    },
-    
-    // 处理关键词文件（修复：跳过表头行）
-    handleKeywordFile(file) {
-        if (!file.name.endsWith('.xlsx')) {
-            this.showStatus('请上传.xlsx格式的Excel文件', 'error');
-            return;
+    // 解析粘贴的文本
+    parseKeywords() {
+        const rawValue = this.keywordInput.value;
+        this.keywords = rawValue
+            .split('\n')
+            .map(k => k.trim())
+            .filter(k => k !== "");
+            
+        if (this.keywords.length === 0) {
+            this.showStatus('请先粘贴关键词', 'error');
+            return false;
         }
-        
-        this.keywordStatus.textContent = `正在处理: ${file.name}`;
-        
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[firstSheetName];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                
-                // 提取关键词（跳过第一行表头）
-                this.keywords = [];
-                // 从索引1开始遍历，跳过第一行表头
-                jsonData.slice(1).forEach(row => {
-                    const value = row[0];
-                    if (value && typeof value === 'string' && value.trim()) {
-                        this.keywords.push(value.trim());
-                    }
-                });
-                
-                if (this.keywords.length === 0) {
-                    this.showStatus('未找到有效关键词', 'error');
-                    this.keywordStatus.textContent = '未找到关键词';
-                } else {
-                    this.showStatus(`成功加载 ${this.keywords.length} 个关键词`, 'success');
-                    this.keywordStatus.textContent = `已加载 ${this.keywords.length} 个关键词`;
-                }
-            } catch (error) {
-                this.showStatus(`文件处理失败: ${error.message}`, 'error');
-                this.keywordStatus.textContent = '处理失败';
-            }
-        };
-        reader.readAsArrayBuffer(file);
+        this.showStatus(`已解析 ${this.keywords.length} 个关键词`, 'success');
+        return true;
     },
     
-    // 显示状态信息
     showStatus(message, type = 'info') {
         const statusEl = document.createElement('div');
-        statusEl.className = `mb-1 ${
-            type === 'error' ? 'text-red-600' : 
-            type === 'success' ? 'text-green-600' : 'text-gray-700'
-        }`;
+        statusEl.className = `mb-1 ${type === 'error' ? 'text-red-600' : type === 'success' ? 'text-green-600' : 'text-gray-700'}`;
         statusEl.textContent = message;
         this.statusDisplay.prepend(statusEl);
         this.statusDisplay.scrollTop = this.statusDisplay.scrollHeight;
     },
     
-    // 关键词分组
     splitKeywordsIntoGroups(groupCount) {
         const groups = [];
         const groupSize = Math.floor(this.keywords.length / groupCount);
         const remainder = this.keywords.length % groupCount;
         let start = 0;
-        
         for (let i = 0; i < groupCount; i++) {
             const end = start + groupSize + (i < remainder ? 1 : 0);
             groups.push(this.keywords.slice(start, end));
@@ -300,7 +174,6 @@ export const strategy1 = {
         return groups;
     },
     
-    // 生成广告模板（修复：复制次数为0时不加后缀）
     generateTemplate() {
         try {
             // 获取表单数据
@@ -491,5 +364,4 @@ export const strategy1 = {
     }
 };
 
-// 暴露到全局，供主页面调用
 window.strategy1 = strategy1;
