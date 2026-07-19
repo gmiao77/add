@@ -3,312 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AMZ广告工具箱</title>
+    <title>AMZ 广告工具箱</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        select { -webkit-appearance: none; -moz-appearance: none; appearance: none; background: transparent; }
-
-        .hidden-system {
-            display: none;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(1px);
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        .modal-container {
-            background: white;
-            width: 90%;
-            max-width: 360px;
-            padding: 2rem 1.5rem 1.8rem;
-            border: 1px solid #e5e7eb;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            animation: scaleIn 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-
-        .shake {
-            animation: shake 0.3s ease-in-out 0s 2;
-        }
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-            100% { transform: translateX(0); }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.96); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .modal-title {
-            font-size: 1rem;
-            font-weight: 400;
-            letter-spacing: 0.08em;
-            color: #1f2937;
-            margin-bottom: 1.8rem;
-            text-align: left;
-            padding-left: 0.75rem;
-            border-left: 2px solid #b91c1c;
-        }
-        .modal-input {
-            width: 100%;
-            padding: 0.6rem 0;
-            border: none;
-            border-bottom: 1px solid #d1d5db;
-            font-size: 0.9rem;
-            background: transparent;
-            transition: border-color 0.2s;
-            outline: none;
-            text-align: center;
-            color: #111827;
-        }
-        .modal-input:focus {
-            border-bottom-color: #b91c1c;
-        }
-        .modal-button {
-            display: block;
-            width: 100%;
-            margin-top: 2rem;
-            padding: 0.5rem 0;
-            background: transparent;
-            border: 1px solid #b91c1c;
-            font-size: 0.8rem;
-            letter-spacing: 0.1em;
-            color: #b91c1c;
-            cursor: pointer;
-            transition: all 0.2s;
-            background-color: #ffffff;
-        }
-        .modal-button:hover {
-            background-color: #fff1f0;
-            border-color: #9f1a1a;
-            color: #9f1a1a;
-        }
-        .error-msg {
-            font-size: 0.7rem;
-            color: #b91c1c;
-            text-align: center;
-            margin-top: 1rem;
-            letter-spacing: 0.02em;
-            opacity: 0;
-            transition: opacity 0.15s ease;
-        }
-        .error-msg.show {
-            opacity: 1;
-        }
-
-        .bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            background-color: #FAFAFA; 
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .bg-texture {
-            position: absolute;
-            inset: 0;
-            opacity: 0.025; 
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-            z-index: 1;
-        }
-
-        .light-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(90px);
-            opacity: 0.5;
-            animation: breathe 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .orb-1 {
-            width: 45vw;
-            height: 45vw;
-            background: #EAE5E1;
-            top: -15%;
-            left: -10%;
-            animation-duration: 25s;
-        }
-
-        .orb-2 {
-            width: 55vw;
-            height: 55vw;
-            background: #F0ECE9; 
-            bottom: -20%;
-            right: -15%;
-            animation-duration: 32s;
-            animation-delay: -5s;
-        }
-
-        .orb-3 {
-            width: 40vw;
-            height: 40vw;
-            background: #E6E4E2; 
-            top: 30%;
-            left: 40%;
-            animation-duration: 28s;
-            animation-delay: -12s;
-        }
-
-        @keyframes breathe {
-            0% {
-                transform: scale(1) translate(0, 0);
-                opacity: 0.3;
-            }
-            50% {
-                opacity: 0.6;
-            }
-            100% {
-                transform: scale(1.1) translate(3%, 4%);
-                opacity: 0.4;
-            }
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #FAFAFA; }
+        .sidebar-item { transition: all 0.3s ease; color: #9CA3AF; }
+        .sidebar-item.active { color: #000; font-weight: 500; }
+        .sidebar-item:hover { color: #000; }
     </style>
 </head>
 
-<body class="bg-transparent min-h-screen text-stone-800 antialiased relative flex flex-col">
-    
-    <div class="bg-canvas">
-        <div class="bg-texture"></div>
-        <div class="light-orb orb-1"></div>
-        <div class="light-orb orb-2"></div>
-        <div class="light-orb orb-3"></div>
-    </div>
+<body class="flex h-screen overflow-hidden">
 
-    <div class="container mx-auto px-6 py-12 max-w-4xl relative z-10 flex flex-col flex-grow">
-
-        <div id="adSystem" class="block flex-grow"> 
-            <header class="mb-12">
-                <h1 class="text-3xl font-normal tracking-widest text-stone-900">AMZ广告工具箱</h1>
-                <p class="text-sm text-stone-400 mt-2 tracking-wider">批量广告模板生成器</p>
-            </header>
-
-            <nav class="flex space-x-10 mb-10 border-b border-stone-200">
-                <a href="index.html" class="pb-3 border-b-2 border-red-700 text-stone-900 font-medium tracking-widest text-sm flex items-center transition-colors">
-                    广告工具
-                </a>
-            </nav>
-    
-            <main class="bg-white p-10 border border-stone-200">
-                <div class="mb-8 relative">
-                    <label class="block text-xs font-bold tracking-widest text-stone-900 mb-3 uppercase">选择策略 / Strategy</label>
-                    <div class="relative">
-                        <select id="strategySelector" class="w-full px-4 py-3 border-2 border-stone-200 bg-stone-50 text-stone-800 text-sm focus:border-stone-900 focus:bg-white focus:outline-none transition-colors rounded-none cursor-pointer">
-                            <option value="">- 请选择您的广告策略 -</option>
-                            <option value="strategy1">策略1 - 关键词批量</option>
-                            <option value="strategy2">策略2 - ASIN定投</option>
-                            <option value="strategy3">策略3 - 批量自动</option>
-                            <option value="strategy4">策略4 - 自定义表格</option>
-                            <option value="strategy5">策略5 - 批量否定</option>
-                            <option value="strategy6">策略6 - 批量SBV</option>
-                            <option value="strategy7">策略7 - 群友自定义1</option>
-                            <option value="strategy8">策略8 - 群友自定义2</option>
-                            <option value="strategy9">策略9 - 群友自定义3-AMC</option>
-
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-stone-500">
-                            <i class="fa fa-angle-down"></i>
-                        </div>
-                    </div>
-                </div>
-    
-                <div id="strategyContent" class="min-h-[500px] border border-stone-200 bg-stone-50/50 p-6 flex flex-col transition-all">
-                    <div class="flex-1 flex flex-col items-center justify-center text-stone-400">
-                        <i class="fa fa-cube text-3xl mb-4 opacity-30"></i>
-                        <p class="tracking-widest text-sm">等待载入</p>
-                    </div>
-                </div>
-            </main>
+    <!-- 左侧导航栏 -->
+    <nav class="w-64 border-r border-stone-100 p-12 flex flex-col justify-between h-full bg-white/50">
+        <div>
+            <h1 class="text-lg font-light tracking-[0.2em] text-stone-900 mb-16">AMZ TOOLS</h1>
+            <ul id="strategyNav" class="space-y-6 text-sm tracking-widest">
+                <li class="sidebar-item cursor-pointer" data-id="strategy1">关键词批量</li>
+                <li class="sidebar-item cursor-pointer" data-id="strategy2">ASIN定投</li>
+                <li class="sidebar-item cursor-pointer" data-id="strategy3">批量自动</li>
+                <li class="sidebar-item cursor-pointer" data-id="strategy4">自定义表格</li>
+                <li class="sidebar-item cursor-pointer" data-id="strategy5">批量否定</li>
+                <li class="sidebar-item cursor-pointer" data-id="strategy6">批量SBV</li>
+                <li class="sidebar-item cursor-pointer" data-id="strategy7">群友自定义1</li>
+                <li class="sidebar-item cursor-pointer" data-id="strategy8">群友自定义2</li>
+                <li class="sidebar-item cursor-pointer" data-id="strategy9">群友自定义3</li>
+            </ul>
         </div>
+        <div class="text-[10px] text-stone-300 tracking-[0.2em]">KANG JIE © 2026</div>
+    </nav>
 
-        <footer class="mt-16 text-center font-sans pb-4">
-            <div class="inline-flex items-center text-[11px] tracking-[0.15em] text-stone-400/40 hover:text-stone-400 transition-colors duration-500 cursor-default">
-                <span>VIEWS <span id="busuanzi_value_site_pv" class="font-medium ml-1"></span></span>
-                <span class="mx-4 text-stone-200">/</span>
-                <span>VISITORS <span id="busuanzi_value_site_uv" class="font-medium ml-1"></span></span>
-            </div>
-        </footer>
-    
-        <script>
+    <main id="strategyContent" class="flex-1 h-full overflow-y-auto p-16 bg-[#FAFAFA]">
+        <div class="max-w-3xl">
+            <div class="text-stone-300 font-light italic">请在左侧选择一项策略以开始工作...</div>
+        </div>
+    </main>
 
-            const strategyMap = {
-                strategy1: 'strategy1.js',
-                strategy2: 'strategy2.js',
-                strategy3: 'strategy3.js',
-                strategy4: 'strategy4.js',
-                strategy5: 'strategy5.js',
-                strategy6: 'strategy6.js',
-                strategy7: 'strategy7.js',
-                strategy8: 'strategy8.js',
-                strategy9: 'strategy9.js'
-            };
-    
-            let currentModule = null;
-    
-            document.getElementById('strategySelector').addEventListener('change', async (e) => {
-                const strategyId = e.target.value;
-                const container = document.getElementById('strategyContent');
-    
-                container.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-stone-900"><i class="fa fa-circle-o-notch fa-spin text-2xl mb-4"></i><p class="tracking-widest text-sm">处理中...</p></div>';
-    
-                if (!strategyId) {
-                    container.innerHTML = '<div class="flex-1 flex flex-col items-center justify-center text-stone-400"><i class="fa fa-cube text-3xl mb-4 opacity-30"></i><p class="tracking-widest text-sm">等待载入</p></div>';
-                    currentModule = null;
-                    return;
+    <script>
+        const strategyMap = {
+            strategy1: 'strategy1.js', strategy2: 'strategy2.js', strategy3: 'strategy3.js',
+            strategy4: 'strategy4.js', strategy5: 'strategy5.js', strategy6: 'strategy6.js',
+            strategy7: 'strategy7.js', strategy8: 'strategy8.js', strategy9: 'strategy9.js'
+        };
+
+        document.getElementById('strategyNav').addEventListener('click', async (e) => {
+            if (e.target.tagName !== 'LI') return;
+
+
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+            e.target.classList.add('active');
+
+            const strategyId = e.target.dataset.id;
+            const container = document.getElementById('strategyContent');
+            
+            container.innerHTML = '<div class="text-stone-400 animate-pulse">正在载入策略模块...</div>';
+
+            try {
+                const oldScript = document.getElementById('strategyScript');
+                if (oldScript) oldScript.remove();
+
+                const script = document.createElement('script');
+                script.id = 'strategyScript';
+                script.src = strategyMap[strategyId];
+                script.type = 'module';
+                document.head.appendChild(script);
+
+                await new Promise((res, rej) => { script.onload = res; script.onerror = rej; });
+
+                if (window[strategyId]) {
+                    window[strategyId].init(container);
                 }
-    
-                try {
-                    const oldScript = document.getElementById('strategyScript');
-                    if (oldScript) oldScript.remove();
-    
-                    const script = document.createElement('script');
-                    script.id = 'strategyScript';
-                    script.src = strategyMap[strategyId];
-                    script.type = 'module';
-    
-                    await new Promise((resolve, reject) => {
-                        script.onload = resolve;
-                        script.onerror = () => reject(new Error('策略加载失败'));
-                        document.head.appendChild(script);
-                    });
-    
-                    if (window[strategyId] && typeof window[strategyId].init === 'function') {
-                        currentModule = window[strategyId];
-                        currentModule.init(container);
-                    } else {
-                        throw new Error('策略模块格式错误');
-                    }
-                } catch (error) {
-                    container.innerHTML = `<div class="flex-1 flex flex-col items-center justify-center text-red-700 bg-red-50 w-full h-full"><i class="fa fa-exclamation-triangle text-2xl mb-3"></i><p class="tracking-wider text-sm">加载失败: ${error.message}</p></div>`;
-                    currentModule = null;
-                }
-            });
-        </script>
-
-
-    </div>
+            } catch (err) {
+                container.innerHTML = '<div class="text-red-400">加载模块失败，请检查文件路径。</div>';
+            }
+        });
+    </script>
 </body>
 </html>
